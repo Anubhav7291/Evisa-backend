@@ -2,7 +2,7 @@ import express from "express";
 import mysql from "mysql";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import bcrypt from "bcrypt";
+
 import jwt from "jsonwebtoken";
 import path from "path";
 import multer from "multer";
@@ -120,33 +120,6 @@ app.post("/login", (req, res) => {
   });
 });
 
-app.post("/employeelogin", (req, res) => {
-  const sql = "SELECT * FROM employee Where email = ?";
-  con.query(sql, [req.body.email], (err, result) => {
-    if (err)
-      return res.json({ Status: "Error", Error: "Error in runnig query" });
-    if (result.length > 0) {
-      bcrypt.compare(
-        req.body.password.toString(),
-        result[0].password,
-        (err, response) => {
-          
-          if (!response) {
-            console.log(result)
-            const id = result[0].id;
-            const token = jwt.sign({ role: "employee", id: result[0].id }, "jwt-secret", { expiresIn: "1d" });
-            res.cookie("token", token);
-            return res.json({ Status: "Success", id: result[0].id});
-          } else {
-            return res.json({ Error: "password err" });
-          }
-        }
-      );
-    } else {
-      return res.json({ Status: "Error", Error: "Wrong Email or Password" });
-    }
-  });
-});
 
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
