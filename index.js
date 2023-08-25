@@ -11,7 +11,7 @@ import nodemailer from  'nodemailer'
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:3000",],
+    origin: ["https://master--iridescent-fox-f31d24.netlify.app",],
     methods: ["POST", "GET", "PUT"],
     credentials: true,
   })
@@ -233,7 +233,7 @@ app.post("/create", (req, res) => {
           Please click on the link below to resume your application:</p>
                           <p>To get started, simply click the button below:</p>
                           <p align="center">
-                              <a href="http://localhost:3000/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
+                              <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
                           </p>
                           <p>By clicking the button, you'll be directed to our your application</p>
                          
