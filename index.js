@@ -21,11 +21,11 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const con = mysql.createConnection({
-  host: "localhost",
+  host: "sql6.freemysqlhosting.net",
   port:3306,
-  user: "root",
-  password: "",
-  database: "visaform",
+  user: "sql6642381",
+  password: "kSnrwBN9IH",
+  database: "sql6642381",
 });
 
 var transporter = nodemailer.createTransport({
@@ -96,7 +96,7 @@ const upload = multer({
 
 con.connect(function (err) {
   if (err) {
-    console.log("Error in Connection");
+    console.log("Error in Connection", err);
   } else {
     console.log("Connected");
   }
