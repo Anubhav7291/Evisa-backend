@@ -9,7 +9,13 @@ import multer from "multer";
 import nodemailer from  'nodemailer'
 
 const app = express();
-
+app.use(
+  cors({
+    allowedHeaders:["*"],
+    methods: ["POST", "GET", "PUT"],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
@@ -227,7 +233,7 @@ app.post("/create", (req, res) => {
           Please click on the link below to resume your application:</p>
                           <p>To get started, simply click the button below:</p>
                           <p align="center">
-                              <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
+                              <a href="https://master--iridescent-fox-f31d24.netlify.app//register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
                           </p>
                           <p>By clicking the button, you'll be directed to our your application</p>
                          
