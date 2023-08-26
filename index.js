@@ -9,13 +9,15 @@ import multer from "multer";
 import nodemailer from  'nodemailer'
 
 const app = express();
-app.use(
-  cors({
-    allowedHeaders:["*"],
-    methods: ["POST", "GET", "PUT"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     allowedHeaders:["*"],
+//     allowedOrigins :['*'],
+//     methods: ["POST", "GET", "PUT"],
+//     credentials: true,
+//   })
+// );
+app.use(cors({origin: '*'}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
