@@ -17,7 +17,7 @@ const app = express();
 //     credentials: true,
 //   })
 // );
-app.use(cors({origin: '*'}));
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
