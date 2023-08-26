@@ -9,13 +9,7 @@ import multer from "multer";
 import nodemailer from  'nodemailer'
 
 const app = express();
-app.use(
-  cors({
-    origin: ["https://master--iridescent-fox-f31d24.netlify.app",],
-    methods: ["POST", "GET", "PUT"],
-    credentials: true,
-  })
-);
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
