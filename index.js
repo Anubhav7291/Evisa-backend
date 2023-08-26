@@ -231,11 +231,11 @@ app.post("/create", (req, res) => {
                           <p>Dear ${req.body.firstName} ${req.body.name},</p>
                           <p>
           You have incomplete eVisa application for India.
-          Your temporary application reference is: ${tempId}
+          Your temporary application reference is: ${tempId} TESTING
           Please click on the link below to resume your application:</p>
                           <p>To get started, simply click the button below:</p>
                           <p align="center">
-                              <a href="https://master--iridescent-fox-f31d24.netlify.app//register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
+                              <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
                           </p>
                           <p>By clicking the button, you'll be directed to our your application</p>
                          
