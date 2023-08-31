@@ -21,7 +21,6 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
-
 const con = mysql.createConnection({
   host: "sql6.freemysqlhosting.net",
   port:3306,
@@ -211,7 +210,6 @@ app.post("/create", (req, res) => {
           from: 'anubh896@gmail.com',
           to: req.body.email,
           subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
-         
          html: `<!DOCTYPE html>
          <html>
          <head>
