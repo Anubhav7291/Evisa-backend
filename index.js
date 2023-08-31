@@ -215,11 +215,11 @@ app.post("/create", (req, res) => {
          html: `<!DOCTYPE html>
          <html>
          <head>
-             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+             <meta name="viewport" content="width=device-width, initial-scale=0.9">
              <style>
                  @media only screen and (max-width: 600px) {
                      .container {
-                         width: 100% !important;
+                         width: 80% !important;
                      }
                  }
              </style>
