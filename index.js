@@ -22,11 +22,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
 const con = mysql.createConnection({
-  host: "sql6.freemysqlhosting.net",
+  host: "sql12.freemysqlhosting.net",
   port:3306,
-  user: "sql6642381",
-  password: "kSnrwBN9IH",
-  database: "sql6642381",
+  user: "sql12643800",
+  password: "CxC8ubyMSV",
+  database: "sql12643800",
 });
 
 var transporter = nodemailer.createTransport({
