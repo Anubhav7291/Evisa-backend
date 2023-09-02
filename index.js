@@ -177,8 +177,8 @@ app.get('/tempId/:id', (req,res) => {
   });
 })
 
-app.get("/getEmployees", (req, res) => {
-  const sql = "SELECT * from employee";
+app.get("/getLeads", (req, res) => {
+  const sql = "SELECT customer.*, passportdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id;";
   con.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.json({ Status: "Success", result: result });
