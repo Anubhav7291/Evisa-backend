@@ -2,13 +2,16 @@ import express from "express";
 import mysql from "mysql";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
 import jwt from "jsonwebtoken";
 import path from "path";
 import multer from "multer";
-import nodemailer from  'nodemailer'
+import nodemailer from "nodemailer";
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
+
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
 // app.use(
 //   cors({
 //     allowedHeaders:["*"],
@@ -20,27 +23,28 @@ const app = express();
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
+
 app.use(express.static("public"));
 const con = mysql.createConnection({
-  host: "sql12.freemysqlhosting.net",
-  port:3306,
-  user: "sql12643800",
-  password: "CxC8ubyMSV",
-  database: "sql12643800",
+  host: "sql12.freemysqlhosting.com",
+  port: 3306,
+  user: "	sql12646669",
+  password: "xjjky7R4aq",
+  database: "	sql12646669",
 });
 
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: 'anubh896@gmail.com',
-    pass: 'jgyleylimjtvirqb'
-  }
+    user: "anubh896@gmail.com",
+    pass: "jgyleylimjtvirqb",
+  },
 });
 
 var mailOptions = {
-  from: 'anubh896@gmail.com',
-  to: 'anubh896@gmail.com',
-  subject: 'Sending Email test',
+  from: "anubh896@gmail.com",
+  to: "anubh896@gmail.com",
+  subject: "Sending Email test",
   html: `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -76,24 +80,8 @@ var mailOptions = {
   
   </body>
   </html> 
-`
+`,
 };
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/images");
-  },
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({
-  storage: storage,
-});
 
 con.connect(function (err) {
   if (err) {
@@ -110,7 +98,9 @@ app.post("/login", (req, res) => {
       return res.json({ Status: "Error", Error: "Error in runnig query" });
     if (result.length > 0) {
       const id = result[0].id;
-      const token = jwt.sign({ role :'admin' }, "jwt-secret", { expiresIn: "1d" });
+      const token = jwt.sign({ role: "admin" }, "jwt-secret", {
+        expiresIn: "1d",
+      });
       res.cookie("token", token);
 
       return res.json({ Status: "Success" });
@@ -120,7 +110,6 @@ app.post("/login", (req, res) => {
     }
   });
 });
-
 
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
@@ -158,27 +147,28 @@ const verifyUser = (req, res, next) => {
     jwt.verify(token, "jwt-secret", (err, decoded) => {
       if (err) return res.json({ Error: "Wrong token" });
       req.role = decoded.role;
-      req.id = decoded.id
+      req.id = decoded.id;
       next();
     });
   }
 };
 
 app.get("/dashboard", verifyUser, (req, res) => {
-  return res.json({ Status: "Success", role: req.role, id: req.id});
+  return res.json({ Status: "Success", role: req.role, id: req.id });
 });
 
-app.get('/tempId/:id', (req,res) => {
+app.get("/tempId/:id", (req, res) => {
   const sql = "SELECT * from customer where TempId = ?";
   const id = req.params.id;
-  con.query(sql, [id],(err, result) => {
+  con.query(sql, [id], (err, result) => {
     if (err) return res.json({ Error: "Error!" });
     return res.json({ Status: "Success", Result: result });
   });
-})
+});
 
 app.get("/getLeads", (req, res) => {
-  const sql = "SELECT customer.*, passportdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id;";
+  const sql =
+    "SELECT customer.*, passportdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id;";
   con.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.json({ Status: "Success", result: result });
@@ -186,31 +176,31 @@ app.get("/getLeads", (req, res) => {
 });
 
 app.post("/create", (req, res) => {
-  let tempId = 'TMP' + Math.floor(Math.random() * 1000000000);
+  let tempId = "TMP" + Math.floor(Math.random() * 1000000000);
   const sql =
     "INSERT INTO customer (`TempId`,`name`, `firstName`, `nationality`, `portOfArrival`, `dob`,`email`, `mobileCode`, `phoneNumber`, `edoa`, `visaService`, `visaOptions`) VALUES (?)";
-    const values = [
-      tempId,
-      req.body.name,
-      req.body.firstName,
-      req.body.nationality,
-      req.body.portOfArrival,
-      req.body.dob,
-      req.body.email,
-      req.body.mobileCode,
-      req.body.phoneNumber,
-      req.body.EDOA,
-      req.body.visaService,
-      req.body.visaOptions,
-    ];
-    con.query(sql, [values], (err, result) => {
-      if (err) return res.json({ Error: err });
-      if(result){
-        var mailOptions = {
-          from: 'anubh896@gmail.com',
-          to: req.body.email,
-          subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
-         html: `<!DOCTYPE html>
+  const values = [
+    tempId,
+    req.body.name,
+    req.body.firstName,
+    req.body.nationality,
+    req.body.portOfArrival,
+    req.body.dob,
+    req.body.email,
+    req.body.mobileCode,
+    req.body.phoneNumber,
+    req.body.EDOA,
+    req.body.visaService,
+    req.body.visaOptions,
+  ];
+  con.query(sql, [values], (err, result) => {
+    if (err) return res.json({ Error: err });
+    if (result) {
+      var mailOptions = {
+        from: "anubh896@gmail.com",
+        to: req.body.email,
+        subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
+        html: `<!DOCTYPE html>
          <html>
          <head>
              <meta name="viewport" content="width=device-width, initial-scale=0.9">
@@ -259,8 +249,7 @@ app.post("/create", (req, res) => {
          </body>
          </html>
          `,
-         
-         
+
         //   html: `<!DOCTYPE html>
         //   <html lang="en">
         //   <head>
@@ -269,7 +258,7 @@ app.post("/create", (req, res) => {
         //       <title>Continue you application</title>
         //   </head>
         //   <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-          
+
         //       <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 3px 5px rgba(0,0,0,0.1);">
         //           <tr>
         //               <td align="center" bgcolor="#2c3e50" style="padding: 30px 0;">
@@ -288,42 +277,42 @@ app.post("/create", (req, res) => {
         //                       <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
         //                   </p>
         //                   <p>By clicking the button, you'll be directed to our your application</p>
-                         
+
         //                   <p>Best regards,<br>E-visa support<br>123456789</p>
         //               </td>
         //           </tr>
         //       </table>
-          
+
         //   </body>
-        //   </html> 
+        //   </html>
         // `
-        };
-        
+      };
 
-
-        transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log(error)
-            return res.json({message:"Error sending mail"})
-          } else {
-            con.query('INSERT INTO passportdetails (id) VALUES (?)', [tempId], (err) => {
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+          return res.json({ message: "Error sending mail" });
+        } else {
+          con.query(
+            "INSERT INTO passportdetails (id) VALUES (?)",
+            [tempId],
+            (err) => {
               if (err) throw err;
-              console.log(tempId)
-              return res.json({message: "Success", tempId: tempId})
-            })
-            
-          }
-        });
-      }
-    });
+              console.log(tempId);
+              return res.json({ message: "Success", tempId: tempId });
+            }
+          );
+        }
+      });
+    }
   });
-
+});
 
 app.put("/update/:id", (req, res) => {
   const id = req.params.id;
-  console.log(id)
+  console.log(id);
   const sql =
-  "UPDATE customer SET name = ?, firstName = ?, nationality = ?, portOfArrival = ?, dob = ?,email = ? , mobileCode = ?, phoneNumber = ?, edoa = ?, visaService = ?, visaOptions = ? WHERE TempId = ?";
+    "UPDATE customer SET name = ?, firstName = ?, nationality = ?, portOfArrival = ?, dob = ?,email = ? , mobileCode = ?, phoneNumber = ?, edoa = ?, visaService = ?, visaOptions = ? WHERE TempId = ?";
   const values = [
     req.body.name,
     req.body.firstName,
@@ -336,39 +325,111 @@ app.put("/update/:id", (req, res) => {
     req.body.EDOA,
     req.body.visaService,
     req.body.visaOptions,
-    id
+    id,
   ];
   con.query(sql, values, (err, result) => {
     if (err) return res.json({ Error: err });
-    if(result){
-    const sql =
-  "UPDATE passportdetails  SET citizenship = ?,city = ?,country = ?,expiryDate = ?,issueCountry = ?,issueDate = ?,mark = ?,otherDateOfIssue = ?,otherNationality = ?,otherPassportNumber = ?,otherPlaceIssue = ?,passportNumber = ?,qualification = ?,religion = ? WHERE id = ?"
+    if (result) {
+      const sql =
+        "UPDATE passportdetails  SET citizenship = ?,city = ?,country = ?,expiryDate = ?,issueCountry = ?,issueDate = ?,mark = ?,otherDateOfIssue = ?,otherNationality = ?,otherPassportNumber = ?,otherPlaceIssue = ?,passportNumber = ?,qualification = ?,religion = ? WHERE id = ?";
 
-  const values = [
-    req.body.passportDetails.citizenship,
-    req.body.passportDetails.city,
-    req.body.passportDetails.country,
-    req.body.passportDetails.expiryDate,
-    req.body.passportDetails.issueCountry,
-    req.body.passportDetails.issueDate,
-    req.body.passportDetails.mark,
-    req.body.passportDetails.otherDateOfIssue,
-    req.body.passportDetails.otherNationality,
-    req.body.passportDetails.otherPassportNumber,
-    req.body.passportDetails.otherPlaceIssue,
-    req.body.passportDetails.passportNumber,
-    req.body.passportDetails.qualification,
-    req.body.passportDetails.religion,
-    id
-  ];
-  con.query(sql, values, (err, result) => {
-    if (err) return res.json({ Error: err });
-  
-    return res.json({message:"Success"})
-  })}
+      const values = [
+        req.body.passportDetails.citizenship,
+        req.body.passportDetails.city,
+        req.body.passportDetails.country,
+        req.body.passportDetails.expiryDate,
+        req.body.passportDetails.issueCountry,
+        req.body.passportDetails.issueDate,
+        req.body.passportDetails.mark,
+        req.body.passportDetails.otherDateOfIssue,
+        req.body.passportDetails.otherNationality,
+        req.body.passportDetails.otherPassportNumber,
+        req.body.passportDetails.otherPlaceIssue,
+        req.body.passportDetails.passportNumber,
+        req.body.passportDetails.qualification,
+        req.body.passportDetails.religion,
+        id,
+      ];
+      con.query(sql, values, (err, result) => {
+        if (err) return res.json({ Error: err });
+
+        return res.json({ message: "Success" });
+      });
+    }
   });
 });
 
+const uploadFields = [
+  { name: "applicantFile", maxCount: 1 }, // For field 'file1', accept 1 file
+  { name: "passportFile", maxCount: 1 }, // For field 'file2', accept 1 file
+  // Add more objects for additional fields as needed
+];
+
+app.post("/otherDetails", upload.fields(uploadFields), (req, res) => {
+  const sql = `
+  INSERT INTO otherdetails (
+    id, street, village, addresscountry, state, postal, fatherName, fatherNation,
+    fatherBirth, fatherCountry, motherName, motherNation, motherBirth,
+    motherCountry, martialStatus, spouseName, spouseNation, spousePlace,
+    spouseCountry, spouseOccupation, spousePhone, defenceOrganization,
+    defenceDesignation, defenceRank, defencePosting, viAddress,viPreviousCity,viCountry,viVisa,viPlaceIssue,
+    viDateIssue,extendedControlNo,
+    extendedDate, Q1Detail, Q2Detail, Q3Detail, Q4Detail, Q5Detail, Q6Detail,
+    applicantFile, passportFile
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)
+`;
+
+  const values = [
+    req.body.id,
+    req.body.street,
+    req.body.village,
+    req.body.addresscountry,
+    req.body.state,
+    req.body.postal,
+    req.body.fatherName,
+    req.body.fatherNation,
+    req.body.fatherBirth,
+    req.body.fatherCountry,
+    req.body.motherName,
+    req.body.motherNation,
+    req.body.motherBirth,
+    req.body.motherCountry,
+    req.body.martialStatus,
+    req.body.spouseName,
+    req.body.spouseNation,
+    req.body.spousePlace,
+    req.body.spouseCountry,
+    req.body.spouseOccupation,
+    req.body.spousePhone,
+    req.body.defenceOrganization,
+    req.body.defenceDesignation,
+    req.body.defenceRank,
+    req.body.defencePosting,
+    req.body.viAddress,
+    req.body.viPreviousCity,
+    req.body.viCountry,
+    req.body.viVisa,
+    req.body.viPlaceIssue,
+    req.body.viDateIssue,
+    req.body.extendedControlNo,
+    req.body.extendedDate,
+    req.body.Q1Detail,
+    req.body.Q2Detail,
+    req.body.Q3Detail,
+    req.body.Q4Detail,
+    req.body.Q5Detail,
+    req.body.Q6Detail,
+    req.files["applicantFile"],
+    req.files["passportFile"],
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ message: err });
+    if (result) {
+      return res.json({ message: "Success" });
+    }
+  });
+});
 app.listen(8081, () => {
   console.log("Running");
 });
