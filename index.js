@@ -461,7 +461,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.Q6Detail,
     req.files["applicantFile"][0].buffer,
     req.files["passportFile"][0].buffer,
-    "TMP830075729"
+    req.body.id
   ];
 
   con.query(sql, values, (err, result) => {
