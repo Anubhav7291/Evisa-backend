@@ -11,7 +11,8 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 
 const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage });
+const upload = multer({ storage: storage,limits: { fileSize: 5 * 1024 * 1024 }
+ });
 // app.use(
 //   cors({
 //     allowedHeaders:["*"],
@@ -25,12 +26,19 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(express.static("public"));
+// const con = mysql.createConnection({
+//   host: "sql12.freemysqlhosting.net",
+//   port: 3306,
+//   user: "sql12646669",
+//   password: "xjjky7R4aq",
+//   database: "sql12646669",
+// });
 const con = mysql.createConnection({
-  host: "sql12.freemysqlhosting.net",
+  host: "localhost",
   port: 3306,
-  user: "sql12646669",
-  password: "xjjky7R4aq",
-  database: "sql12646669",
+  user: "root",
+  password: "",
+  database: "visaform",
 });
 
 var transporter = nodemailer.createTransport({
@@ -168,7 +176,7 @@ app.get("/tempId/:id", (req, res) => {
 
 app.get("/getLeads", (req, res) => {
   const sql =
-    "SELECT customer.*, passportdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id;";
+    "SELECT customer.*, passportdetails.*, otherdetails.*, paymentdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id INNER JOIN otherdetails ON customer.TempId = otherdetails.id  INNER JOIN paymentdetails ON customer.TempId = paymentdetails.id";
   con.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.json({ Status: "Success", result: result });
@@ -296,10 +304,28 @@ app.post("/create", (req, res) => {
           con.query(
             "INSERT INTO passportdetails (id) VALUES (?)",
             [tempId],
-            (err) => {
+            (err, result) => {
               if (err) throw err;
-              console.log(tempId);
-              return res.json({ message: "Success", tempId: tempId });
+              // return res.json({ message: "Success", tempId: tempId });
+              if(result){
+                con.query(
+                  "INSERT INTO otherdetails (id) VALUES (?)",
+                  [tempId],
+                  (err, result) => {
+                    if (err) throw err;
+                    if(result){
+                      con.query(
+                        "INSERT INTO paymentdetails (id) VALUES (?)",
+                        [tempId],
+                        (err, result) => {
+                          if (err) throw err;
+                          if(result){
+                            return  res.json({ message: "Success", tempId: tempId });
+                          }
+                        })
+                    }
+                  })
+              }
             }
           );
         }
@@ -365,22 +391,35 @@ const uploadFields = [
   // Add more objects for additional fields as needed
 ];
 
-app.post("/otherDetails", upload.fields(uploadFields), (req, res) => {
-  const sql = `
-  INSERT INTO otherdetails (
-    id, street, village, addresscountry, state, postal, fatherName, fatherNation,
-    fatherBirth, fatherCountry, motherName, motherNation, motherBirth,
-    motherCountry, martialStatus, spouseName, spouseNation, spousePlace,
-    spouseCountry, spouseOccupation, spousePhone, defenceOrganization,
-    defenceDesignation, defenceRank, defencePosting, viAddress,viPreviousCity,viCountry,viVisa,viPlaceIssue,
-    viDateIssue,extendedControlNo,
-    extendedDate, Q1Detail, Q2Detail, Q3Detail, Q4Detail, Q5Detail, Q6Detail,
-    applicantFile, passportFile
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)
+app.get("/getLeadbyId/:id", (req,res) => {
+  const id = req.params.id;
+  const sql = `SELECT
+  customer.*,
+  passportdetails.*,
+  otherdetails.*,
+  paymentdetails.*
+FROM
+   customer
+LEFT JOIN
+   passportdetails ON customer.TempId = passportdetails.id
+LEFT JOIN
+   otherdetails ON customer.TempId = otherdetails.id
+LEFT JOIN
+   paymentdetails ON customer.TempId = paymentdetails.id
+WHERE
+  customer.TempId = ?`
+  con.query(sql, [id], (err, result) => {
+    if(err) throw err
+    return res.json({message:"Success", data:result})
+  })
+ 
+})
+
+app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
+  const sql = `UPDATE otherdetails SET street = ?,village = ?,addresscountry = ?,state = ?,postal = ?,fatherName = ?,fatherNation = ?,fatherBirth = ?,fatherCountry = ?,motherName = ?,motherNation = ?,motherBirth = ?,motherCountry = ?,martialStatus = ?,spouseName = ?,spouseAddress = ?,  spouseNation = ?,spousePlace = ?,spouseCountry = ?,spouseOccupation = ?,spousePhone = ?,defenceOrganization = ?,defenceDesignation = ?,defenceRank = ?,defencePosting = ?,viAddress = ?,viPreviousCity = ?,viCountry = ?,viVisa = ?,viPlaceIssue = ?,viDateIssue = ?,extendedControlNo = ?,extendedDate = ?,Q1Detail = ?,Q2Detail = ?,Q3Detail = ?,Q4Detail = ?,Q5Detail = ?,Q6Detail = ?,applicantFile = ?,passportFile = ? WHERE id = ?
 `;
 
   const values = [
-    req.body.id,
     req.body.street,
     req.body.village,
     req.body.addresscountry,
@@ -396,6 +435,7 @@ app.post("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.motherCountry,
     req.body.martialStatus,
     req.body.spouseName,
+    req.body.spouseAddress,
     req.body.spouseNation,
     req.body.spousePlace,
     req.body.spouseCountry,
@@ -419,8 +459,9 @@ app.post("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.Q4Detail,
     req.body.Q5Detail,
     req.body.Q6Detail,
-    req.files["applicantFile"],
-    req.files["passportFile"],
+    req.files["applicantFile"][0].buffer,
+    req.files["passportFile"][0].buffer,
+    "TMP830075729"
   ];
 
   con.query(sql, values, (err, result) => {
