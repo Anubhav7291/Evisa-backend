@@ -26,20 +26,20 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(express.static("public"));
-// const con = mysql.createConnection({
-//   host: "sql12.freemysqlhosting.net",
-//   port: 3306,
-//   user: "sql12646669",
-//   password: "xjjky7R4aq",
-//   database: "sql12646669",
-// });
 const con = mysql.createConnection({
-  host: "localhost",
+  host: "sql12.freemysqlhosting.net",
   port: 3306,
-  user: "root",
-  password: "",
-  database: "visaform",
+  user: "sql12646669",
+  password: "xjjky7R4aq",
+  database: "sql12646669",
 });
+// const con = mysql.createConnection({
+//   host: "localhost",
+//   port: 3306,
+//   user: "root",
+//   password: "",
+//   database: "visaform",
+// });
 
 var transporter = nodemailer.createTransport({
   service: "gmail",
