@@ -125,12 +125,9 @@ app.get("/logout", (req, res) => {
   return res.json({ Status: "Success" });
 });
 
-app.get("/adminCount", (req, res) => {
-  const sql = "Select count(id) as admin from users";
-  con.query(sql, (err, result) => {
-    if (err) return res.json({ Error: "Err" });
-    return res.json(result);
-  });
+app.get('/getip', (req, res) => {
+  const ipAddress = req.ip; // Client's IP address
+  res.json({ ip: ipAddress });
 });
 
 app.get("/employeeCount", (req, res) => {
@@ -187,7 +184,7 @@ app.get("/getLeads", (req, res) => {
 app.post("/create", (req, res) => {
   let tempId ="IVS" + Math.floor(Math.random() * 1000000000);
   const sql =
-    "INSERT INTO customer (`TempId`,`name`, `firstName`, `nationality`, `portOfArrival`, `dob`,`email`, `mobileCode`, `phoneNumber`, `edoa`, `visaService`, `visaOptions`) VALUES (?)";
+    "INSERT INTO customer (`TempId`,`name`, `firstName`, `nationality`, `portOfArrival`, `dob`,`email`, `mobileCode`, `phoneNumber`, `edoa`, `visaService`, `visaOptions`, `ip`) VALUES (?)";
   const values = [
     tempId,
     req.body.name,
@@ -201,6 +198,7 @@ app.post("/create", (req, res) => {
     req.body.EDOA,
     req.body.visaService,
     req.body.visaOptions,
+    req.body.ip
   ];
   con.query(sql, [values], (err, result) => {
     if (err) return res.json({ Error: err });
