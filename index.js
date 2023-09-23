@@ -29,10 +29,11 @@ app.use(express.static("public"));
 const con = mysql.createConnection({
   host: "sql12.freemysqlhosting.net",
   port: 3306,
-  user: "sql12646669",
-  password: "xjjky7R4aq",
-  database: "sql12646669",
+  user: "sql12648426",
+  password: "F2bbAMrWMF",
+  database: "sql12648426",
 });
+
 // const con = mysql.createConnection({
 //   host: "localhost",
 //   port: 3306,
