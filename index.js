@@ -39,7 +39,7 @@ const con = mysql.createConnection({
 //   port: 3306,
 //   user: "root",
 //   password: "",
-//   database: "visaform",
+//   database: "test",
 // });
 
 var transporter = nodemailer.createTransport({
@@ -433,7 +433,8 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
   IB_name=?,
   IB_phone=?,
   IB_website=?,
-  businessFile=?, WHERE id = ?
+  businessFile=?
+   WHERE id = ?
 `;
 
   const values = [
