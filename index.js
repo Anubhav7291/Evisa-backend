@@ -415,7 +415,25 @@ WHERE
 })
 
 app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
-  const sql = `UPDATE otherdetails SET street = ?,village = ?,addresscountry = ?,state = ?,postal = ?,fatherName = ?,fatherNation = ?,fatherBirth = ?,fatherCountry = ?,motherName = ?,motherNation = ?,motherBirth = ?,motherCountry = ?,martialStatus = ?,spouseName = ?,spouseAddress = ?,  spouseNation = ?,spousePlace = ?,spouseCountry = ?,spouseOccupation = ?,spousePhone = ?,defenceOrganization = ?,defenceDesignation = ?,defenceRank = ?,defencePosting = ?,viAddress = ?,viPreviousCity = ?,viCountry = ?,viVisa = ?,viPlaceIssue = ?,viDateIssue = ?,extendedControlNo = ?,extendedDate = ?,Q1Detail = ?,Q2Detail = ?,Q3Detail = ?,Q4Detail = ?,Q5Detail = ?,Q6Detail = ?,applicantFile = ?,passportFile = ? WHERE id = ?
+  const sql = `UPDATE otherdetails SET street = ?,village = ?,addresscountry = ?,state = ?,postal = ?,fatherName = ?,fatherNation = ?,fatherBirth = ?,fatherCountry = ?,motherName = ?,motherNation = ?,motherBirth = ?,motherCountry = ?,martialStatus = ?,spouseName = ?,spouseAddress = ?,  spouseNation = ?,spousePlace = ?,spouseCountry = ?,spouseOccupation = ?,spousePhone = ?,defenceOrganization = ?,defenceDesignation = ?,defenceRank = ?,defencePosting = ?,viAddress = ?,viPreviousCity = ?,viCountry = ?,viVisa = ?,viPlaceIssue = ?,viDateIssue = ?,extendedControlNo = ?,extendedDate = ?,Q1Detail = ?,Q2Detail = ?,Q3Detail = ?,Q4Detail = ?,Q5Detail = ?,Q6Detail = ?,applicantFile = ?,passportFile = ?,  Aoccupation= "",
+  Q7Detail=?,
+  employerAddress=?,
+  employerName=?,
+  FI_address=?,
+  FI_phone=?,
+  FI_referencename=?,
+  FO_address=?,
+  FO_phone=?,
+  FO_referencename=?,
+  AB_address=?,
+  AB_name=?,
+  AB_phone=?,
+  AB_website=?,
+  IB_address=?,
+  IB_name=?,
+  IB_phone=?,
+  IB_website=?,
+  businessFile=?, WHERE id = ?
 `;
 
   const values = [
@@ -460,11 +478,30 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.Q6Detail,
     req.files["applicantFile"][0].buffer,
     req.files["passportFile"][0].buffer,
+    req.body.Aoccupation,
+    req.body.Q7Detail,
+    req.body.employerAddress,
+    req.body.employerName,
+    req.body.FI_address,
+    req.body.FI_phone,
+    req.body.FI_referencename,
+    req.body.FO_address,
+    req.body.FO_phone,
+    req.body.FO_referencename,
+    req.body.AB_address,
+    req.body.AB_name,
+    req.body.AB_phone,
+    req.body.AB_website,
+    req.body.IB_address,
+    req.body.IB_name,
+    req.body.IB_phone,
+    req.body.IB_website,
+    req.body.businessFile,
     req.body.id
   ];
 
   con.query(sql, values, (err, result) => {
-    if (err) return res.json({ message: err });
+    if (err) console.log(err);
     if (result) {
       return res.json({ message: "Success" });
     }
