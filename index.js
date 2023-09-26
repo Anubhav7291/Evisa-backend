@@ -493,56 +493,62 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
       var mailOptions = {
         from: "anubh896@gmail.com",
         to: req.body.email,
-        subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
+        subject: `eVisa India - Successful Submitted`,
         html: `<!DOCTYPE html>
-         <html>
-         <head>
-             <meta name="viewport" content="width=device-width, initial-scale=0.9">
-             <style>
-                 @media only screen and (max-width: 600px) {
-                     .container {
-                         width: 80% !important;
-                     }
-                 }
-             </style>
-         </head>
-         <body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
-         
-         <div class="container" style="max-width: 600px; margin: 0 auto;color: black; padding: 20px; border: 1px solid #ededde; border-top: 3px solid #ff8c1a; ">
-         
-             <p style="text-align: left; font-size: 90%;">
-                 Dear ${req.body.firstName} ${req.body.name},
-                 <br><br>
-                 You have an incomplete eVisa application for India.
-                 <br><br>
-                 Your temporary application reference is: <strong>${tempId}</strong>
-             </p>
-         <br>
-             <p style="text-align: center;">
-                 <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 15px 60px; background-color:#990000; color: white; text-decoration: none; border-radius: 5px;">Resume Application</a>
-             </p>
-         <br>
-             <p style="text-align: left;font-size: 90%;">
-                 Let us know if you require any assistance.
-                 <br><br>
-                 Click the links to learn more about <a href="LINK_TO_INDIA_EVISA_INFO">India eVisa</a> or <a href="LINK_TO_FAQ">Frequently Asked Questions</a>.
-                 <br><br>
-                 Please apply at least four (4) days prior to your travel to India to allow time for the eVisa to be issued.
-                 <br><br>
-                 Regards,<br>
-                 Customer Service Dept.<br>
-                 <a href="https://www.india-visa-online.org" style="color: black;">www.india-visa-online.org</a>
-             </p>
-         <br>
-             <p style="font-size: 80%; color: #888;">
-                 Confidentiality Notice: This email and any attachments are confidential and may also be privileged. If you have received this message by mistake, please contact us immediately and then delete the message from your computer. Any review, retransmission, dissemination, or other use of, or taking of any action in reliance upon, this information by persons or entities other than the intended recipient is prohibited.
-             </p>
-         
-         </div>
-         
-         </body>
-         </html>
-         `,
+        <html>
+        <head>
+            <style>
+                @media screen and (max-width: 600px) {
+                    .container {
+                        width: 100% !important;
+                    }
+                    .content {
+                        padding: 10px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+                <tr>
+                    <td align="center">
+                      
+                        <table class="content" cellpadding="0" cellspacing="0" border="0" align="center" width="600">
+                            <tr>
+                                <td>
+                                  info@india-evisa-service.org
+                                  <hr/>
+                                    <p>
+                                      
+                                        From: info@india-evisa-service.org<br>
+                                        Sent: Wednesday, September 20, 2023 4:55 PM<br>
+                                        To: ******n@fr.lactalis.com<br>
+                                        Subject: Online Visa Services-Application Completed- Marina Denise Josette
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <p style="border: 1px solid #ccc; padding: 10px;">
+                                        Dear Marina Denise Josette,<br><br>
+                                        Thank you for completing eVisa application for India.<br><br>
+                                        Your application has been completed, and all required documents have been received.<br><br>
+                                        Application reference number: EVY997783032<br><br>
+                                        A review of your file is underway. You will receive an email which will contain your Indian eVisa approval confirmation by the Indian Immigration Authorities.<br><br>
+                                        Please note that most eVisas are issued in 4 days; however, some may take longer to process, up to 7 days.<br><br>
+                                        Apply for another E-Visa<br><br>
+                                        Regards,<br>
+                                        Customer Service Dept.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `,
 
         //   html: `<!DOCTYPE html>
         //   <html lang="en">
