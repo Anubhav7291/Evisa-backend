@@ -492,7 +492,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     if (result) {
       var mailOptions = {
         from: "anubh896@gmail.com",
-        to: req.body.email,
+        to: "anubh896@gmail.com",
         subject: `eVisa India - Successful Submitted`,
         html: `<!DOCTYPE html>
         <html>
