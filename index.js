@@ -176,7 +176,9 @@ app.get("/getLeads", (req, res) => {
   const sql =
     "SELECT customer.*, passportdetails.*, otherdetails.*, paymentdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id INNER JOIN otherdetails ON customer.TempId = otherdetails.id  INNER JOIN paymentdetails ON customer.TempId = paymentdetails.id";
   con.query(sql, (err, result) => {
+    console.log("call")
     if (err) return res.json({ Error: err });
+    console.log("result")
     return res.json({ Status: "Success", result: result });
   });
 });
@@ -415,28 +417,11 @@ WHERE
 })
 
 app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
-  const sql = `UPDATE otherdetails SET street = ?,village = ?,addresscountry = ?,state = ?,postal = ?,fatherName = ?,fatherNation = ?,fatherBirth = ?,fatherCountry = ?,motherName = ?,motherNation = ?,motherBirth = ?,motherCountry = ?,martialStatus = ?,spouseName = ?,spouseAddress = ?,  spouseNation = ?,spousePlace = ?,spouseCountry = ?,spouseOccupation = ?,spousePhone = ?,defenceOrganization = ?,defenceDesignation = ?,defenceRank = ?,defencePosting = ?,viAddress = ?,viPreviousCity = ?,viCountry = ?,viVisa = ?,viPlaceIssue = ?,viDateIssue = ?,extendedControlNo = ?,extendedDate = ?,Q1Detail = ?,Q2Detail = ?,Q3Detail = ?,Q4Detail = ?,Q5Detail = ?,Q6Detail = ?,applicantFile = ?,passportFile = ?,  Aoccupation= "",
-  Q7Detail=?,
-  employerAddress=?,
-  employerName=?,
-  FI_address=?,
-  FI_phone=?,
-  FI_referencename=?,
-  FO_address=?,
-  FO_phone=?,
-  FO_referencename=?,
-  AB_address=?,
-  AB_name=?,
-  AB_phone=?,
-  AB_website=?,
-  IB_address=?,
-  IB_name=?,
-  IB_phone=?,
-  IB_website=?,
-  businessFile=?
-   WHERE id = ?
-`;
-
+  con.query("SELECT * from otherdetails where id =?",[req.body.id], (err, result) => {
+    console.log(result)
+  })
+  const sql = "UPDATE otherdetails SET street=?,village=?,addresscountry=?,state=?,postal=?,fatherName=?,fatherNation=?,fatherBirth=?,fatherCountry=?,motherName=?,motherNation=?,motherBirth=?,motherCountry=?,martialStatus=?,spouseName=?,spouseAddress=?,spouseNation=?,spousePlace=?,spouseCountry=?,spouseOccupation=?,spousePhone=?,defenceOrganization=?,defenceDesignation=?,defenceRank=?,defencePosting=?,viAddress=?,viPreviousCity=?,viCountry=?,viVisa=?,viPlaceIssue=?,viDateIssue=?,extendedControlNo=?,extendedDate=?,Q1Detail=?,Q2Detail=?,Q3Detail=?,Q4Detail=?,Q5Detail=?,Q6Detail=?,applicantFile=?,passportFile=?,Aoccupation=?,Q7Detail=?,employerAddress=?,employerName=?,FI_address=?,FI_phone=?,FI_referencename=?,FO_address=?,FO_phone=?,FO_referencename=?,AB_address=?,AB_name=?,AB_phone=?,AB_website=?,IB_address=?,IB_name=?,IB_phone=?,IB_website=?,businessFile=? WHERE id=?";
+  
   const values = [
     req.body.street,
     req.body.village,
@@ -502,8 +487,10 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
   ];
 
   con.query(sql, values, (err, result) => {
+   
     if (err) console.log(err);
     if (result) {
+      console.log(result, values)
       return res.json({ message: "Success" });
     }
   });
