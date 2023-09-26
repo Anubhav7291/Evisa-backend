@@ -490,7 +490,104 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
    
     if (err) console.log(err);
     if (result) {
-      console.log(result, values)
+      var mailOptions = {
+        from: "anubh896@gmail.com",
+        to: req.body.email,
+        subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
+        html: `<!DOCTYPE html>
+         <html>
+         <head>
+             <meta name="viewport" content="width=device-width, initial-scale=0.9">
+             <style>
+                 @media only screen and (max-width: 600px) {
+                     .container {
+                         width: 80% !important;
+                     }
+                 }
+             </style>
+         </head>
+         <body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+         
+         <div class="container" style="max-width: 600px; margin: 0 auto;color: black; padding: 20px; border: 1px solid #ededde; border-top: 3px solid #ff8c1a; ">
+         
+             <p style="text-align: left; font-size: 90%;">
+                 Dear ${req.body.firstName} ${req.body.name},
+                 <br><br>
+                 You have an incomplete eVisa application for India.
+                 <br><br>
+                 Your temporary application reference is: <strong>${tempId}</strong>
+             </p>
+         <br>
+             <p style="text-align: center;">
+                 <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 15px 60px; background-color:#990000; color: white; text-decoration: none; border-radius: 5px;">Resume Application</a>
+             </p>
+         <br>
+             <p style="text-align: left;font-size: 90%;">
+                 Let us know if you require any assistance.
+                 <br><br>
+                 Click the links to learn more about <a href="LINK_TO_INDIA_EVISA_INFO">India eVisa</a> or <a href="LINK_TO_FAQ">Frequently Asked Questions</a>.
+                 <br><br>
+                 Please apply at least four (4) days prior to your travel to India to allow time for the eVisa to be issued.
+                 <br><br>
+                 Regards,<br>
+                 Customer Service Dept.<br>
+                 <a href="https://www.india-visa-online.org" style="color: black;">www.india-visa-online.org</a>
+             </p>
+         <br>
+             <p style="font-size: 80%; color: #888;">
+                 Confidentiality Notice: This email and any attachments are confidential and may also be privileged. If you have received this message by mistake, please contact us immediately and then delete the message from your computer. Any review, retransmission, dissemination, or other use of, or taking of any action in reliance upon, this information by persons or entities other than the intended recipient is prohibited.
+             </p>
+         
+         </div>
+         
+         </body>
+         </html>
+         `,
+
+        //   html: `<!DOCTYPE html>
+        //   <html lang="en">
+        //   <head>
+        //       <meta charset="UTF-8">
+        //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        //       <title>Continue you application</title>
+        //   </head>
+        //   <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+
+        //       <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 3px 5px rgba(0,0,0,0.1);">
+        //           <tr>
+        //               <td align="center" bgcolor="#2c3e50" style="padding: 30px 0;">
+        //                   <h1 style="color: #ffffff;">Continue your application</h1>
+        //               </td>
+        //           </tr>
+        //           <tr>
+        //               <td style="padding: 20px;">
+        //                   <p>Dear ${req.body.firstName} ${req.body.name},</p>
+        //                   <p>
+        //   You have incomplete eVisa application for India.
+        //   Your temporary application reference is: ${tempId} TESTING
+        //   Please click on the link below to resume your application:</p>
+        //                   <p>To get started, simply click the button below:</p>
+        //                   <p align="center">
+        //                       <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
+        //                   </p>
+        //                   <p>By clicking the button, you'll be directed to our your application</p>
+
+        //                   <p>Best regards,<br>E-visa support<br>123456789</p>
+        //               </td>
+        //           </tr>
+        //       </table>
+
+        //   </body>
+        //   </html>
+        // `
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+          return res.json({ message: "Error sending mail" });
+        }
+      })
       return res.json({ message: "Success" });
     }
   });
