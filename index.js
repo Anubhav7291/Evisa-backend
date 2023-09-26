@@ -462,8 +462,8 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.Q4Detail,
     req.body.Q5Detail,
     req.body.Q6Detail,
-    req.files["applicantFile"][0].buffer,
-    req.files["passportFile"][0].buffer,
+    req.files["applicantFile"]?.[0].buffer||"",
+    req.files["passportFile"]?.[0].buffer||"",
     req.body.Aoccupation,
     req.body.Q7Detail,
     req.body.employerAddress,
@@ -482,7 +482,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.IB_name,
     req.body.IB_phone,
     req.body.IB_website,
-    req.body.businessFile,
+    req.files["businessFile"]?.[0].buffer||"",
     req.body.id
   ];
 
@@ -494,43 +494,48 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
         from: "anubh896@gmail.com",
         to: req.body.email,
         subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
-        html: `
-         <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Continue you application</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-
-              <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 3px 5px rgba(0,0,0,0.1);">
-                  <tr>
-                      <td align="center" bgcolor="#2c3e50" style="padding: 30px 0;">
-                          <h1 style="color: #ffffff;">Continue your application</h1>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td style="padding: 20px;">
-                          <p>Dear ${req.body.firstName} ${req.body.name},</p>
-                          <p>
-          You have incomplete eVisa application for India.
-          Your temporary application reference is: ${tempId} TESTING
-          Please click on the link below to resume your application:</p>
-                          <p>To get started, simply click the button below:</p>
-                          <p align="center">
-                              <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
-                          </p>
-                          <p>By clicking the button, you'll be directed to our your application</p>
-
-                          <p>Best regards,<br>E-visa support<br>123456789</p>
-                      </td>
-                  </tr>
-              </table>
-
-          </body>
-          </html>
-        `
+        html:`<!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                @media screen and (max-width: 600px) {
+                    .container {
+                        width: 100% !important;
+                    }
+                    .content {
+                        padding: 10px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+                <tr>
+                    <td align="center">
+                      
+                        <table class="content" cellpadding="0" cellspacing="0" border="0" align="center" width="600">
+                          
+                            <tr>
+                                <td align="left">
+                                    <p style="border: 1px solid #ccc; padding: 10px;">
+                                        Dear  ${req.body.firstName} ${req.body.name},<br><br>
+                                        Thank you for completing eVisa application for India.<br><br>
+                                        Your application has been completed, and all required documents have been received.<br><br>
+                                        Application reference number: ${req.body.id}<br><br>
+                                        A review of your file is underway. You will receive an email which will contain your Indian eVisa approval confirmation by the Indian Immigration Authorities.<br><br>
+                                        Please note that most eVisas are issued in 4 days; however, some may take longer to process, up to 7 days.<br><br>
+                                        Apply for another E-Visa<br><br>
+                                        Regards,<br>
+                                        Customer Service Dept.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>`
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
