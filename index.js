@@ -497,42 +497,42 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
         html: `
         `,
 
-        //   html: `<!DOCTYPE html>
-        //   <html lang="en">
-        //   <head>
-        //       <meta charset="UTF-8">
-        //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        //       <title>Continue you application</title>
-        //   </head>
-        //   <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+          html: `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Continue you application</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
 
-        //       <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 3px 5px rgba(0,0,0,0.1);">
-        //           <tr>
-        //               <td align="center" bgcolor="#2c3e50" style="padding: 30px 0;">
-        //                   <h1 style="color: #ffffff;">Continue your application</h1>
-        //               </td>
-        //           </tr>
-        //           <tr>
-        //               <td style="padding: 20px;">
-        //                   <p>Dear ${req.body.firstName} ${req.body.name},</p>
-        //                   <p>
-        //   You have incomplete eVisa application for India.
-        //   Your temporary application reference is: ${tempId} TESTING
-        //   Please click on the link below to resume your application:</p>
-        //                   <p>To get started, simply click the button below:</p>
-        //                   <p align="center">
-        //                       <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
-        //                   </p>
-        //                   <p>By clicking the button, you'll be directed to our your application</p>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 3px 5px rgba(0,0,0,0.1);">
+                  <tr>
+                      <td align="center" bgcolor="#2c3e50" style="padding: 30px 0;">
+                          <h1 style="color: #ffffff;">Continue your application</h1>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="padding: 20px;">
+                          <p>Dear ${req.body.firstName} ${req.body.name},</p>
+                          <p>
+          You have incomplete eVisa application for India.
+          Your temporary application reference is: ${tempId} TESTING
+          Please click on the link below to resume your application:</p>
+                          <p>To get started, simply click the button below:</p>
+                          <p align="center">
+                              <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
+                          </p>
+                          <p>By clicking the button, you'll be directed to our your application</p>
 
-        //                   <p>Best regards,<br>E-visa support<br>123456789</p>
-        //               </td>
-        //           </tr>
-        //       </table>
+                          <p>Best regards,<br>E-visa support<br>123456789</p>
+                      </td>
+                  </tr>
+              </table>
 
-        //   </body>
-        //   </html>
-        // `
+          </body>
+          </html>
+        `
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
