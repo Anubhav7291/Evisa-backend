@@ -494,48 +494,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
         from: "anubh896@gmail.com",
         to: req.body.email,
         subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
-        html: `<!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                @media screen and (max-width: 600px) {
-                    .container {
-                        width: 100% !important;
-                    }
-                    .content {
-                        padding: 10px;
-                    }
-                }
-            </style>
-        </head>
-        <body>
-            <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
-                <tr>
-                    <td align="center">
-                      
-                        <table class="content" cellpadding="0" cellspacing="0" border="0" align="center" width="600">
-                          
-                            <tr>
-                                <td align="left">
-                                    <p style="border: 1px solid #ccc; padding: 10px;">
-                                        Dear  ${req.body.firstName} ${req.body.name},<br><br>
-                                        Thank you for completing eVisa application for India.<br><br>
-                                        Your application has been completed, and all required documents have been received.<br><br>
-                                        Application reference number: ${req.body.id}<br><br>
-                                        A review of your file is underway. You will receive an email which will contain your Indian eVisa approval confirmation by the Indian Immigration Authorities.<br><br>
-                                        Please note that most eVisas are issued in 4 days; however, some may take longer to process, up to 7 days.<br><br>
-                                        Apply for another E-Visa<br><br>
-                                        Regards,<br>
-                                        Customer Service Dept.
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </body>
-        </html>
+        html: `
         `,
 
         //   html: `<!DOCTYPE html>
