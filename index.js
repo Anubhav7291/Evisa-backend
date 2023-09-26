@@ -495,9 +495,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
         to: req.body.email,
         subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
         html: `
-        `,
-
-          html: `<!DOCTYPE html>
+         <!DOCTYPE html>
           <html lang="en">
           <head>
               <meta charset="UTF-8">
