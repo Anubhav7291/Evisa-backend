@@ -493,7 +493,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
       var mailOptions = {
         from: "anubh896@gmail.com",
         to: req.body.email,
-        subject: `eVisa India - Successful Submitted`,
+        subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
         <html>
         <head>
@@ -514,19 +514,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
                     <td align="center">
                       
                         <table class="content" cellpadding="0" cellspacing="0" border="0" align="center" width="600">
-                            <tr>
-                                <td>
-                                  info@india-evisa-service.org
-                                  <hr/>
-                                    <p>
-                                      
-                                        From: info@india-evisa-service.org<br>
-                                        Sent: Wednesday, September 20, 2023 4:55 PM<br>
-                                        To: ******n@fr.lactalis.com<br>
-                                        Subject: Online Visa Services-Application Completed- Marina Denise Josette
-                                    </p>
-                                </td>
-                            </tr>
+                          
                             <tr>
                                 <td align="left">
                                     <p style="border: 1px solid #ccc; padding: 10px;">
