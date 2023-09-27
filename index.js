@@ -240,13 +240,13 @@ app.post("/create", (req, res) => {
              <p style="text-align: left;font-size: 90%;">
                  Let us know if you require any assistance.
                  <br><br>
-                 Click the links to learn more about <a href="LINK_TO_INDIA_EVISA_INFO">India eVisa</a> or <a href="LINK_TO_FAQ">Frequently Asked Questions</a>.
+                 Click the links to learn more about <a href="https://indiaevisaservices.org/">India eVisa</a> or <a href="https://indiaevisaservices.org/">Frequently Asked Questions</a>.
                  <br><br>
                  Please apply at least four (4) days prior to your travel to India to allow time for the eVisa to be issued.
                  <br><br>
                  Regards,<br>
                  Customer Service Dept.<br>
-                 <a href="https://www.india-visa-online.org" style="color: black;">www.india-visa-online.org</a>
+                 <a href="https://indiaevisaservices.org/" style="color: black;">www.india-visa-online.org</a>
              </p>
          <br>
              <p style="font-size: 80%; color: #888;">
