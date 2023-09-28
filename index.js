@@ -389,7 +389,8 @@ app.put("/update/:id", (req, res) => {
 
 const uploadFields = [
   { name: "applicantFile", maxCount: 1 }, // For field 'file1', accept 1 file
-  { name: "passportFile", maxCount: 1 }, // For field 'file2', accept 1 file
+  { name: "passportFile", maxCount: 1 }, 
+  { name: "businessFile", maxCount: 1 }, // For field 'file2', accept 1 file
   // Add more objects for additional fields as needed
 ];
 
@@ -421,7 +422,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
   con.query("SELECT * from otherdetails where id =?",[req.body.id], (err, result) => {
     console.log(result)
   })
-  const sql = "UPDATE otherdetails SET street=?,village=?,addresscountry=?,state=?,postal=?,fatherName=?,fatherNation=?,fatherBirth=?,fatherCountry=?,motherName=?,motherNation=?,motherBirth=?,motherCountry=?,martialStatus=?,spouseName=?,spouseAddress=?,spouseNation=?,spousePlace=?,spouseCountry=?,spouseOccupation=?,spousePhone=?,defenceOrganization=?,defenceDesignation=?,defenceRank=?,defencePosting=?,viAddress=?,viPreviousCity=?,viCountry=?,viVisa=?,viPlaceIssue=?,viDateIssue=?,extendedControlNo=?,extendedDate=?,Q1Detail=?,Q2Detail=?,Q3Detail=?,Q4Detail=?,Q5Detail=?,Q6Detail=?,applicantFile=?,passportFile=?,Aoccupation=?,Q7Detail=?,employerAddress=?,employerName=?,FI_address=?,FI_phone=?,FI_referencename=?,FO_address=?,FO_phone=?,FO_referencename=?,AB_address=?,AB_name=?,AB_phone=?,AB_website=?,IB_address=?,IB_name=?,IB_phone=?,IB_website=?,businessFile=? WHERE id=?";
+  const sql = "UPDATE otherdetails SET street=?,village=?,addresscountry=?,state=?,postal=?,fatherName=?,fatherNation=?,fatherBirth=?,fatherCountry=?,motherName=?,motherNation=?,motherBirth=?,motherCountry=?,martialStatus=?,spouseName=?,spouseAddress=?,spouseNation=?,spousePlace=?,spouseCountry=?,spouseOccupation=?,spousePhone=?,defenceOrganization=?,defenceDesignation=?,defenceRank=?,defencePosting=?,viAddress=?,viPreviousCity=?,viCountry=?,viVisa=?,viPlaceIssue=?,viDateIssue=?,extendedControlNo=?,extendedDate=?,Q1Detail=?,Q2Detail=?,Q3Detail=?,Q4Detail=?,Q5Detail=?,Q6Detail=?,applicantFile=?,passportFile=?,Aoccupation=?,Q7Detail=?,employerAddress=?,employerName=?,FI_address=?,FI_phone=?,FI_referencename=?,FO_address=?,FO_phone=?,FO_referencename=?,AB_address=?,AB_name=?,AB_phone=?,AB_website=?,IB_address=?,IB_name=?,IB_phone=?,IB_website=?,businessFile=?,typeApplicant=?,typePassport=?,typeBusiness=? WHERE id=?";
   
   const values = [
     req.body.street,
@@ -484,6 +485,9 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.IB_phone,
     req.body.IB_website,
     req.files["businessFile"]?.[0].buffer||"",
+    req.body.typeApplicant,
+    req.body.typePassport,
+    req.body.typeBusiness,
     req.body.id
   ];
 
