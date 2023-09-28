@@ -186,7 +186,7 @@ app.get("/getLeads", (req, res) => {
 app.post("/create", (req, res) => {
   let tempId ="IVS" + Math.floor(Math.random() * 1000000000);
   const sql =
-    "INSERT INTO customer (`TempId`,`name`, `firstName`, `nationality`, `portOfArrival`, `dob`,`email`, `mobileCode`, `phoneNumber`, `edoa`, `visaService`, `visaOptions`, `ip`) VALUES (?)";
+    "INSERT INTO customer (`TempId`,`name`, `firstName`, `nationality`, `portOfArrival`, `dob`,`email`, `mobileCode`, `phoneNumber`, `edoa`, `visaService`, `visaOptions`, `ip`, `eTourist`) VALUES (?)";
   const values = [
     tempId,
     req.body.name,
@@ -200,7 +200,8 @@ app.post("/create", (req, res) => {
     req.body.EDOA,
     req.body.visaService,
     req.body.visaOptions,
-    req.body.ip
+    req.body.ip,
+    req.body.eTourist
   ];
   con.query(sql, [values], (err, result) => {
     if (err) return res.json({ Error: err });
