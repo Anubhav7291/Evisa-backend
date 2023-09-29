@@ -21,7 +21,7 @@ const upload = multer({ storage: storage,limits: { fileSize: 5 * 1024 * 1024 }
 //     credentials: true,
 //   })
 // );
-app.use(cors());
+// app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
@@ -488,6 +488,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.typeApplicant,
     req.body.typePassport,
     req.body.typeBusiness,
+    req.body.F_placetoVisited,
     req.body.id
   ];
 
