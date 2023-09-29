@@ -247,7 +247,7 @@ app.post("/create", (req, res) => {
                  <br><br>
                  Regards,<br>
                  Customer Service Dept.<br>
-                 <a href="https://indiaevisaservices.org/" style="color: black;">www.india-visa-online.org</a>
+                 <a href="https://indiaevisaservices.org/" style="color: black;">https://indiaevisaservices.org</a>
              </p>
          <br>
              <p style="font-size: 80%; color: #888;">
@@ -530,9 +530,11 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
                                         Application reference number: ${req.body.id}<br><br>
                                         A review of your file is underway. You will receive an email which will contain your Indian eVisa approval confirmation by the Indian Immigration Authorities.<br><br>
                                         Please note that most eVisas are issued in 4 days; however, some may take longer to process, up to 7 days.<br><br>
-                                        Apply for another E-Visa<br><br>
+                                        <a href="https://indiaevisaservices.org/" style="color: green;">Apply for another E-visa</a>
                                         Regards,<br>
-                                        Customer Service Dept.
+                                        Customer Service Dept.<br>
+                                        <a href="https://indiaevisaservices.org/" style="color: black;">https://indiaevisaservices.org</a>
+
                                     </p>
                                 </td>
                             </tr>
