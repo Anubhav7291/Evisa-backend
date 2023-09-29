@@ -21,7 +21,7 @@ const upload = multer({ storage: storage,limits: { fileSize: 5 * 1024 * 1024 }
 //     credentials: true,
 //   })
 // );
-// app.use(cors());
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
