@@ -42,17 +42,26 @@ const con = mysql.createConnection({
 //   database: "test",
 // });
 
+// var transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: "info@indiaevisaservices.org",
+//     pass: "jgyleylimjtvirqb",
+//   },
+// });
+
 var transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.hostinger.com",
+  port:465,
   auth: {
-    user: "anubh896@gmail.com",
-    pass: "jgyleylimjtvirqb",
+    user: "info@indiaevisaservices.org",
+    pass: "Visae@9845##",
   },
 });
 
 var mailOptions = {
-  from: "anubh896@gmail.com",
-  to: "anubh896@gmail.com",
+  from: "info@indiaevisaservices.org",
+  to: "info@indiaevisaservices.org",
   subject: "Sending Email test",
   html: `<!DOCTYPE html>
   <html lang="en">
@@ -207,7 +216,7 @@ app.post("/create", (req, res) => {
     if (err) return res.json({ Error: err });
     if (result) {
       var mailOptions = {
-        from: "anubh896@gmail.com",
+        from: "info@indiaevisaservices.org",
         to: req.body.email,
         subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
@@ -497,7 +506,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     if (err) console.log(err);
     if (result) {
       var mailOptions = {
-        from: "anubh896@gmail.com",
+        from: "info@indiaevisaservices.org",
         to: req.body.email,
         subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
         html:`<!DOCTYPE html>
