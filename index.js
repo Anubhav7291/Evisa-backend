@@ -562,6 +562,7 @@ WHERE
   con.query(sql, [id], async(err, result) => {
     if (err) throw err;
     for (const res of result) {
+      if(res.applicantFile){
       const getObjectParams = {
         Bucket: BUCKET_NAME,
         Key: res.applicantFile,
@@ -570,7 +571,9 @@ WHERE
       const url = await getSignedUrl(s3, command, { expiresIn: 36000});
       res.applicantUrl = url;
     }
+  }
     for (const res of result) {
+      if(res.passportFile){
       const getObjectParams = {
         Bucket: BUCKET_NAME,
         Key: res.passportFile,
@@ -579,7 +582,9 @@ WHERE
       const url = await getSignedUrl(s3, command, { expiresIn: 36000});
       res.passportUrl = url;
     }
+  }
     for (const res of result) {
+      if(res.businessFile){
       const getObjectParams = {
         Bucket: BUCKET_NAME,
         Key: res.businessFile,
@@ -588,6 +593,7 @@ WHERE
       const url = await getSignedUrl(s3, command, { expiresIn: 36000});
       res.businessUrl = url;
     }
+  }
     return res.json({ message: "Success", data: result });
   });
 });
