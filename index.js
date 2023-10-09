@@ -140,7 +140,7 @@ app.post("/checkout", async (req, res) => {
           from: "info@indiaevisaservices.org",
           to: req.body.email,
           cc: "info@indiaevisaservices.org",
-          subject: `India Evisa Services-Transaction Details- ${req.body.name}`,
+          subject: `India Evisa Services-Transaction Details- ${req.body.name} ${req.body.sirName}`,
           html: `<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -182,7 +182,7 @@ app.post("/checkout", async (req, res) => {
                       display: block;
                       width: 100%;
                       text-align: center;
-                      background-color: #007bff;
+                      background-color: lightgreen;
                       color: white;
                       padding: 10px;
                       text-decoration: none;
@@ -200,9 +200,8 @@ app.post("/checkout", async (req, res) => {
           </head>
           <body>
               <div class="container">
-                  <div class="header">Payment Receipt for India eVisa Application</div>
                   <div class="message">
-                      <p>Dear ${req.body.name},</p>
+                      <p>Dear ${req.body.name} ${req.body.sirName},</p>
                       <p>Thank you for submitting your application for the India eVisa. We are pleased to inform you that your application has been successfully processed and submitted for assessment. Our team aims to approve all applications within 24-48 hours. Once your application has been approved, you will receive an email from the Indian Immigration Authorities confirming your India eVisa approval.</p>
                   </div>
                   <div class="transaction-details">
@@ -665,7 +664,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
                                         Application reference number: ${req.body.id}<br><br>
                                         A review of your file is underway. You will receive an email which will contain your Indian eVisa approval confirmation by the Indian Immigration Authorities.<br><br>
                                         Please note that most eVisas are issued in 4 days; however, some may take longer to process, up to 7 days.<br><br>
-                                        <a href="https://indiaevisaservices.org/" style="color: green;">Apply for another E-visa</a><br><br>
+                                        <a href="https://master--iridescent-fox-f31d24.netlify.app" style="color: green;">Apply for another E-visa</a><br><br>
                                         Regards,<br>
                                         Customer Service Dept.<br>
                                         <a href="https://indiaevisaservices.org/" style="color: black;">https://indiaevisaservices.org</a>
