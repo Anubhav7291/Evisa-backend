@@ -181,7 +181,7 @@ app.post("/checkout", async (req, res) => {
                       width: 100%;
                       text-align: center;
                       background-color: #007bff;
-                      color: #fff;
+                      color: white;
                       padding: 10px;
                       text-decoration: none;
                       border-radius: 5px;
@@ -211,7 +211,7 @@ app.post("/checkout", async (req, res) => {
                       <p><strong>Cost:</strong> $${req.body.amount/100} USD</p>
                       <p><strong>Charges on your card will appear as:</strong> India eVisa</p>
                   </div>
-                  <a href="https://master--iridescent-fox-f31d24.netlify.app/payment/ ${req.body.tempId}" class="action-button">Complete Application</a>
+                  <a href="https://master--iridescent-fox-f31d24.netlify.app/details/${req.body.tempId}" class="action-button">Complete Application</a>
                   <div class="footer">
                       <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
                       <p>If you have not completed your application yet, please click on the "Complete Application" button as soon as possible to ensure a prompt processing time.</p>
