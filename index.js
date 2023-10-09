@@ -67,6 +67,7 @@ var transporter = nodemailer.createTransport({
 var mailOptions = {
   from: "info@indiaevisaservices.org",
   to: "info@indiaevisaservices.org",
+  cc:"info@indiaevisaservices.org",
   subject: "Sending Email test",
   html: `<!DOCTYPE html>
   <html lang="en">
@@ -138,6 +139,7 @@ app.post("/checkout", async (req, res) => {
         var mailOptions = {
           from: "info@indiaevisaservices.org",
           to: req.body.email,
+          cc: "info@indiaevisaservices.org",
           subject: `India Evisa Services-Transaction Details- ${req.body.name}`,
           html: `<!DOCTYPE html>
           <html lang="en">
@@ -332,6 +334,7 @@ app.post("/create", (req, res) => {
       var mailOptions = {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
+        cc: "info@indiaevisaservices.org",
         subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
          <html>
@@ -630,6 +633,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
       var mailOptions = {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
+        cc: "info@indiaevisaservices.org",
         subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
         <html>
