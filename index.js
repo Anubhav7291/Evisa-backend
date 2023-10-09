@@ -210,7 +210,7 @@ app.post("/checkout", async (req, res) => {
                       <p><strong>Temporary Application Number (not for eVisa status tracking):</strong> ${req.body.tempId}</p>
                       <p><strong>Item 1:</strong> X EVISA INDIA</p>
                       <p><strong>Cost:</strong> $${req.body.amount/100} USD</p>
-                      <p><strong>Charges on your card will appear as:</strong> India eVisa</p>
+                      <p><strong>Charges on your card will appear as:</strong> India Evisa Services</p>
                   </div>
                   <a href="https://master--iridescent-fox-f31d24.netlify.app/details/${req.body.tempId}" class="action-button">Complete Application</a>
                   <div class="footer">
@@ -334,7 +334,7 @@ app.post("/create", (req, res) => {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
         cc: "info@indiaevisaservices.org",
-        subject: `eVisa India- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
+        subject: `India Evisa Services- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
          <html>
          <head>
@@ -633,7 +633,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
         cc: "info@indiaevisaservices.org",
-        subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
+        subject: `India Evisa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
         <html>
         <head>
