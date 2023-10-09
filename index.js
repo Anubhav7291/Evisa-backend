@@ -6,13 +6,18 @@ import jwt from "jsonwebtoken";
 import path from "path";
 import multer from "multer";
 import nodemailer from "nodemailer";
+import Stripe from "stripe";
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-
+const stripe = new Stripe(
+  "sk_test_51Nk4rQSAsYGUvUslOKUDQbNjp0Rn43FxkxDkSVIqz5NQmLzw30v9ykrXb2GUcx4DjuLRBRJ9WDwcFbTFHpaEpLAD00Ll4S8wJ4"
+);
 const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage: storage,limits: { fileSize: 5 * 1024 * 1024 }
- });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 // app.use(
 //   cors({
 //     allowedHeaders:["*"],
@@ -52,7 +57,7 @@ const con = mysql.createConnection({
 
 var transporter = nodemailer.createTransport({
   host: "smtp.hostinger.com",
-  port:465,
+  port: 465,
   auth: {
     user: "info@indiaevisaservices.org",
     pass: "Visae@9845##",
@@ -109,32 +114,141 @@ con.connect(function (err) {
   }
 });
 
-app.post("/login", (req, res) => {
-  const sql = "SELECT * FROM users Where email = ? AND  password = ?";
-  con.query(sql, [req.body.email, req.body.password], (err, result) => {
-    if (err)
-      return res.json({ Status: "Error", Error: "Error in runnig query" });
-    if (result.length > 0) {
-      const id = result[0].id;
-      const token = jwt.sign({ role: "admin" }, "jwt-secret", {
-        expiresIn: "1d",
-      });
-      res.cookie("token", token);
+app.post("/checkout", async (req, res) => {
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: req.body.amount,
+      currency: "USD",
+      description: "E-visa payment",
+      confirm: true,
+      payment_method: req.body.id,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: "never",
+      },
+    });
+    console.log(paymentIntent);
+    const sql =
+      "UPDATE paymentdetails SET paymentStatus = ?, transactionId = ?, paymentType = ?  WHERE id = ?";
+    const values = ["Completed", paymentIntent.id, "card", req.body.tempId];
+    con.query(sql, values, (err, result) => {
+      console.log(sql, values);
+      if (err) return res.json({ Error: err });
+      if (result) {
+        var mailOptions = {
+          from: "info@indiaevisaservices.org",
+          to: req.body.email,
+          subject: `India Evisa Services-Transaction Details- ${req.body.name}`,
+          html: `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Payment Receipt</title>
+              <style>
+                  /* Style for the container */
+                  .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      border: 1px solid #ccc;
+                      border-radius: 10px;
+                      background-color: #f9f9f9;
+                  }
+          
+                  /* Style for the header */
+                  .header {
+                      text-align: center;
+                      font-size: 16px;
+                      margin-bottom: 20px;
+                  }
+          
+                  /* Style for the message */
+                  .message {
+                      margin-bottom: 20px;
+                  }
+          
+                  /* Style for the transaction details */
+                  .transaction-details {
+                      border: 1px solid #ccc;
+                      padding: 10px;
+                      background-color: #fff;
+                  }
+          
+                  /* Style for the action button */
+                  .action-button {
+                      display: block;
+                      width: 100%;
+                      text-align: center;
+                      background-color: #007bff;
+                      color: #fff;
+                      padding: 10px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      margin-top: 20px;
+                  }
+          
+                  /* Style for the footer */
+                  .footer {
+                      text-align: center;
+                      font-size: 12px;
+                      margin-top: 20px;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="header">Payment Receipt for India eVisa Application</div>
+                  <div class="message">
+                      <p>Dear ${req.body.name},</p>
+                      <p>Thank you for submitting your application for the India eVisa. We are pleased to inform you that your application has been successfully processed and submitted for assessment. Our team aims to approve all applications within 24-48 hours. Once your application has been approved, you will receive an email from the Indian Immigration Authorities confirming your India eVisa approval.</p>
+                  </div>
+                  <div class="transaction-details">
+                      <p><strong>Transaction ID:</strong> ${paymentIntent.id}</p>
+                      <p><strong>Transaction Date:</strong> ${new Date()}</p>
+                      <p><strong>Temporary Application Number (not for eVisa status tracking):</strong> ${req.body.tempId}</p>
+                      <p><strong>Item 1:</strong> X EVISA INDIA</p>
+                      <p><strong>Cost:</strong> $${req.body.amount/100} USD</p>
+                      <p><strong>Charges on your card will appear as:</strong> India eVisa</p>
+                  </div>
+                  <a href="#" class="action-button">Complete Application</a>
+                  <div class="footer">
+                      <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
+                      <p>If you have not completed your application yet, please click on the "Complete Application" button as soon as possible to ensure a prompt processing time.</p>
+                      <p>IP Address: ${req.body.ip}</p>
+                      <p>If you have not received a response from us within 24 hours, please do not hesitate to contact us via email and reference your temporary application number.</p>
+                  </div>
+                  <div class="add">
+            <p>Best regards,</p>
+            <p>Customer Service Dept.</p>
+            <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
+        </div>
+              </div>
+          </body>
+          </html>
+          `,
+        };
 
-      return res.json({ Status: "Success" });
-    } else {
-      console.log(result, req.body.email, req.body.password);
-      return res.json({ Status: "Error", Error: "Wrong Email or Password" });
-    }
-  });
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+            return res.json({ message: "Error sending mail" });
+          } else {
+            return res.json({ message: "Payment Successful", success: true });
+          }
+        });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });
-
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
   return res.json({ Status: "Success" });
 });
 
-app.get('/getip', (req, res) => {
+app.get("/getip", (req, res) => {
   const ipAddress = req.ip; // Client's IP address
   res.json({ ip: ipAddress });
 });
@@ -185,15 +299,15 @@ app.get("/getLeads", (req, res) => {
   const sql =
     "SELECT customer.*, passportdetails.*, otherdetails.*, paymentdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id INNER JOIN otherdetails ON customer.TempId = otherdetails.id  INNER JOIN paymentdetails ON customer.TempId = paymentdetails.id";
   con.query(sql, (err, result) => {
-    console.log("call")
+    console.log("call");
     if (err) return res.json({ Error: err });
-    console.log("result")
+    console.log("result");
     return res.json({ Status: "Success", result: result });
   });
 });
 
 app.post("/create", (req, res) => {
-  let tempId ="IVS" + Math.floor(Math.random() * 1000000000);
+  let tempId = "IVS" + Math.floor(Math.random() * 1000000000);
   const sql =
     "INSERT INTO customer (`TempId`,`name`, `firstName`, `nationality`, `portOfArrival`, `dob`,`email`, `mobileCode`, `phoneNumber`, `edoa`, `visaService`, `visaOptions`, `ip`, `eTourist`) VALUES (?)";
   const values = [
@@ -210,7 +324,7 @@ app.post("/create", (req, res) => {
     req.body.visaService,
     req.body.visaOptions,
     req.body.ip,
-    req.body.eTourist
+    req.body.eTourist,
   ];
   con.query(sql, [values], (err, result) => {
     if (err) return res.json({ Error: err });
@@ -318,24 +432,29 @@ app.post("/create", (req, res) => {
             (err, result) => {
               if (err) throw err;
               // return res.json({ message: "Success", tempId: tempId });
-              if(result){
+              if (result) {
                 con.query(
                   "INSERT INTO otherdetails (id) VALUES (?)",
                   [tempId],
                   (err, result) => {
                     if (err) throw err;
-                    if(result){
+                    if (result) {
                       con.query(
                         "INSERT INTO paymentdetails (id) VALUES (?)",
                         [tempId],
                         (err, result) => {
                           if (err) throw err;
-                          if(result){
-                            return  res.json({ message: "Success", tempId: tempId });
+                          if (result) {
+                            return res.json({
+                              message: "Success",
+                              tempId: tempId,
+                            });
                           }
-                        })
+                        }
+                      );
                     }
-                  })
+                  }
+                );
               }
             }
           );
@@ -398,12 +517,12 @@ app.put("/update/:id", (req, res) => {
 
 const uploadFields = [
   { name: "applicantFile", maxCount: 1 }, // For field 'file1', accept 1 file
-  { name: "passportFile", maxCount: 1 }, 
+  { name: "passportFile", maxCount: 1 },
   { name: "businessFile", maxCount: 1 }, // For field 'file2', accept 1 file
   // Add more objects for additional fields as needed
 ];
 
-app.get("/getLeadbyId/:id", (req,res) => {
+app.get("/getLeadbyId/:id", (req, res) => {
   const id = req.params.id;
   const sql = `SELECT
   customer.*,
@@ -419,20 +538,24 @@ LEFT JOIN
 LEFT JOIN
    paymentdetails ON customer.TempId = paymentdetails.id
 WHERE
-  customer.TempId = ?`
+  customer.TempId = ?`;
   con.query(sql, [id], (err, result) => {
-    if(err) throw err
-    return res.json({message:"Success", data:result})
-  })
- 
-})
+    if (err) throw err;
+    return res.json({ message: "Success", data: result });
+  });
+});
 
 app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
-  con.query("SELECT * from otherdetails where id =?",[req.body.id], (err, result) => {
-    console.log(result)
-  })
-  const sql = "UPDATE otherdetails SET street=?,village=?,addresscountry=?,state=?,postal=?,fatherName=?,fatherNation=?,fatherBirth=?,fatherCountry=?,motherName=?,motherNation=?,motherBirth=?,motherCountry=?,martialStatus=?,spouseName=?,spouseAddress=?,spouseNation=?,spousePlace=?,spouseCountry=?,spouseOccupation=?,spousePhone=?,defenceOrganization=?,defenceDesignation=?,defenceRank=?,defencePosting=?,viAddress=?,viPreviousCity=?,viCountry=?,viVisa=?,viPlaceIssue=?,viDateIssue=?,extendedControlNo=?,extendedDate=?,Q1Detail=?,Q2Detail=?,Q3Detail=?,Q4Detail=?,Q5Detail=?,Q6Detail=?,applicantFile=?,passportFile=?,Aoccupation=?,Q7Detail=?,employerAddress=?,employerName=?,FI_address=?,FI_phone=?,FI_referencename=?,FO_address=?,FO_phone=?,FO_referencename=?,AB_address=?,AB_name=?,AB_phone=?,AB_website=?,IB_address=?,IB_name=?,IB_phone=?,IB_website=?,businessFile=?,typeApplicant=?,typePassport=?,typeBusiness=?,F_placetoVisited=? WHERE id=?";
-  
+  con.query(
+    "SELECT * from otherdetails where id =?",
+    [req.body.id],
+    (err, result) => {
+      console.log(result);
+    }
+  );
+  const sql =
+    "UPDATE otherdetails SET street=?,village=?,addresscountry=?,state=?,postal=?,fatherName=?,fatherNation=?,fatherBirth=?,fatherCountry=?,motherName=?,motherNation=?,motherBirth=?,motherCountry=?,martialStatus=?,spouseName=?,spouseAddress=?,spouseNation=?,spousePlace=?,spouseCountry=?,spouseOccupation=?,spousePhone=?,defenceOrganization=?,defenceDesignation=?,defenceRank=?,defencePosting=?,viAddress=?,viPreviousCity=?,viCountry=?,viVisa=?,viPlaceIssue=?,viDateIssue=?,extendedControlNo=?,extendedDate=?,Q1Detail=?,Q2Detail=?,Q3Detail=?,Q4Detail=?,Q5Detail=?,Q6Detail=?,applicantFile=?,passportFile=?,Aoccupation=?,Q7Detail=?,employerAddress=?,employerName=?,FI_address=?,FI_phone=?,FI_referencename=?,FO_address=?,FO_phone=?,FO_referencename=?,AB_address=?,AB_name=?,AB_phone=?,AB_website=?,IB_address=?,IB_name=?,IB_phone=?,IB_website=?,businessFile=?,typeApplicant=?,typePassport=?,typeBusiness=?,F_placetoVisited=? WHERE id=?";
+
   const values = [
     req.body.street,
     req.body.village,
@@ -473,8 +596,8 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.Q4Detail,
     req.body.Q5Detail,
     req.body.Q6Detail,
-    req.files["applicantFile"]?.[0].buffer||"",
-    req.files["passportFile"]?.[0].buffer||"",
+    req.files["applicantFile"]?.[0].buffer || "",
+    req.files["passportFile"]?.[0].buffer || "",
     req.body.Aoccupation,
     req.body.Q7Detail,
     req.body.employerAddress,
@@ -493,23 +616,22 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.IB_name,
     req.body.IB_phone,
     req.body.IB_website,
-    req.files["businessFile"]?.[0].buffer||"",
+    req.files["businessFile"]?.[0].buffer || "",
     req.body.typeApplicant,
     req.body.typePassport,
     req.body.typeBusiness,
     req.body.F_placetoVisited,
-    req.body.id
+    req.body.id,
   ];
 
   con.query(sql, values, (err, result) => {
-   
     if (err) console.log(err);
     if (result) {
       var mailOptions = {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
         subject: `Online Visa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
-        html:`<!DOCTYPE html>
+        html: `<!DOCTYPE html>
         <html>
         <head>
             <style>
@@ -552,7 +674,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
                 </tr>
             </table>
         </body>
-        </html>`
+        </html>`,
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
@@ -560,7 +682,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
           console.log(error);
           return res.json({ message: "Error sending mail" });
         }
-      })
+      });
       return res.json({ message: "Success" });
     }
   });
