@@ -6,9 +6,27 @@ import jwt from "jsonwebtoken";
 import path from "path";
 import multer from "multer";
 import nodemailer from "nodemailer";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import Stripe from "stripe";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+
 
 const app = express();
+const BUCKET_NAME = 'e-visa-images'
+const BUCKET_REGION = 'ap-south-1'
+const ACCESS_KEY ="AKIA2NYYZWF3GOP55BVU"
+const SECRET_ACCESS_KEY = "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"
+
+
+const s3 = new S3Client({
+credentials:{
+  accessKeyId:ACCESS_KEY,
+  secretAccessKey:SECRET_ACCESS_KEY
+},
+region: BUCKET_REGION
+})
+
 app.use(express.urlencoded({ extended: true }));
 const stripe = new Stripe(
   "sk_test_51Nk4rQSAsYGUvUslOKUDQbNjp0Rn43FxkxDkSVIqz5NQmLzw30v9ykrXb2GUcx4DjuLRBRJ9WDwcFbTFHpaEpLAD00Ll4S8wJ4"
@@ -296,7 +314,7 @@ app.get("/tempId/:id", (req, res) => {
   });
 });
 
-app.get("/getLeads", (req, res) => {
+app.get("/getLeads", async (req, res) => {
   const sql =
     "SELECT customer.*, passportdetails.*, otherdetails.*, paymentdetails.* FROM customer INNER JOIN passportdetails ON customer.TempId = passportdetails.id INNER JOIN otherdetails ON customer.TempId = otherdetails.id  INNER JOIN paymentdetails ON customer.TempId = paymentdetails.id";
   con.query(sql, (err, result) => {
@@ -541,13 +559,73 @@ LEFT JOIN
    paymentdetails ON customer.TempId = paymentdetails.id
 WHERE
   customer.TempId = ?`;
-  con.query(sql, [id], (err, result) => {
+  con.query(sql, [id], async(err, result) => {
     if (err) throw err;
+    for (const res of result) {
+      const getObjectParams = {
+        Bucket: BUCKET_NAME,
+        Key: res.applicantFile,
+      };
+      const command = new GetObjectCommand(getObjectParams);
+      const url = await getSignedUrl(s3, command, { expiresIn: 36000});
+      res.applicantUrl = url;
+    }
+    for (const res of result) {
+      const getObjectParams = {
+        Bucket: BUCKET_NAME,
+        Key: res.passportFile,
+      };
+      const command = new GetObjectCommand(getObjectParams);
+      const url = await getSignedUrl(s3, command, { expiresIn: 36000});
+      res.passportUrl = url;
+    }
+    for (const res of result) {
+      const getObjectParams = {
+        Bucket: BUCKET_NAME,
+        Key: res.businessFile,
+      };
+      const command = new GetObjectCommand(getObjectParams);
+      const url = await getSignedUrl(s3, command, { expiresIn: 36000});
+      res.businessUrl = url;
+    }
     return res.json({ message: "Success", data: result });
   });
 });
 
-app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
+app.put("/otherDetails", upload.fields(uploadFields), async(req, res) => {
+  const applicantImageName = Math.floor(Math.random() * 1000000000) + req.files["applicantFile"]?.[0].originalname
+  const businessImageName = req.files["businessFile"] ? Math.floor(Math.random() * 1000000000) + req.files["businessFile"]?.[0]?.originalname : null
+  const passportImageName = Math.floor(Math.random() * 1000000000) + req.files["applicantFile"]?.[0]?.originalname
+  const params1 = {
+    Bucket: BUCKET_NAME,
+    Key: applicantImageName,
+    Body:req.files["applicantFile"]?.[0].buffer,
+    ContentType:req.files["applicantFile"]?.[0].mimetype
+   }
+   const command1 = new PutObjectCommand(params1)
+   await s3.send(command1)
+
+   const params2 = {
+    Bucket: BUCKET_NAME,
+    Key: businessImageName,
+    Body:req.files["businessFile"]?.[0].buffer,
+    ContentType:req.files["businessFile"]?.[0].mimetype
+   }
+   if(businessImageName){
+    const command2 = new PutObjectCommand(params2)
+    await s3.send(command2)
+   }
+  
+
+   const params3 = {
+    Bucket: BUCKET_NAME,
+    Key: passportImageName,
+    Body:req.files["passportFile"]?.[0].buffer,
+    ContentType:req.files["passportFile"]?.[0].mimetype
+   }
+   const command3 = new PutObjectCommand(params3)
+   await s3.send(command3)
+
   con.query(
     "SELECT * from otherdetails where id =?",
     [req.body.id],
@@ -557,6 +635,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
   );
   const sql =
     "UPDATE otherdetails SET street=?,village=?,addresscountry=?,state=?,postal=?,fatherName=?,fatherNation=?,fatherBirth=?,fatherCountry=?,motherName=?,motherNation=?,motherBirth=?,motherCountry=?,martialStatus=?,spouseName=?,spouseAddress=?,spouseNation=?,spousePlace=?,spouseCountry=?,spouseOccupation=?,spousePhone=?,defenceOrganization=?,defenceDesignation=?,defenceRank=?,defencePosting=?,viAddress=?,viPreviousCity=?,viCountry=?,viVisa=?,viPlaceIssue=?,viDateIssue=?,extendedControlNo=?,extendedDate=?,Q1Detail=?,Q2Detail=?,Q3Detail=?,Q4Detail=?,Q5Detail=?,Q6Detail=?,applicantFile=?,passportFile=?,Aoccupation=?,Q7Detail=?,employerAddress=?,employerName=?,FI_address=?,FI_phone=?,FI_referencename=?,FO_address=?,FO_phone=?,FO_referencename=?,AB_address=?,AB_name=?,AB_phone=?,AB_website=?,IB_address=?,IB_name=?,IB_phone=?,IB_website=?,businessFile=?,typeApplicant=?,typePassport=?,typeBusiness=?,F_placetoVisited=? WHERE id=?";
+  
 
   const values = [
     req.body.street,
@@ -598,8 +677,8 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.Q4Detail,
     req.body.Q5Detail,
     req.body.Q6Detail,
-    req.files["applicantFile"]?.[0].buffer || "",
-    req.files["passportFile"]?.[0].buffer || "",
+    applicantImageName,
+    passportImageName,
     req.body.Aoccupation,
     req.body.Q7Detail,
     req.body.employerAddress,
@@ -618,7 +697,7 @@ app.put("/otherDetails", upload.fields(uploadFields), (req, res) => {
     req.body.IB_name,
     req.body.IB_phone,
     req.body.IB_website,
-    req.files["businessFile"]?.[0].buffer || "",
+    businessImageName || "",
     req.body.typeApplicant,
     req.body.typePassport,
     req.body.typeBusiness,
