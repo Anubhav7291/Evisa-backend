@@ -299,9 +299,7 @@ app.get("/getip", (req, res) => {
   res.json({ ip: ipAddress });
 });
 
-app.get("/dashboard", verifyUser, (req, res) => {
-  return res.json({ Status: "Success", role: req.role, id: req.id });
-});
+
 
 app.get("/tempId/:id", (req, res) => {
   const sql = "SELECT * from customer where TempId = ?";
