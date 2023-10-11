@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import path from "path";
 import multer from "multer";
+import aws from 'aws-sdk'
 import nodemailer from "nodemailer";
 import {
   S3Client,
@@ -20,13 +21,31 @@ const BUCKET_REGION = "ap-south-1";
 const ACCESS_KEY = "AKIA2NYYZWF3GOP55BVU";
 const SECRET_ACCESS_KEY = "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";
 
-const s3 = new S3Client({
-  credentials: {
-    accessKeyId: ACCESS_KEY,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
-  region: BUCKET_REGION,
-});
+// const s3 = new S3Client({
+//   credentials: {
+//     accessKeyId: ACCESS_KEY,
+//     secretAccessKey: SECRET_ACCESS_KEY,
+//   },
+//   region: BUCKET_REGION,
+// });
+
+const s3 = new aws.S3({
+  region:BUCKET_REGION,
+  accessKeyId:ACCESS_KEY,
+  secretAccessKey:SECRET_ACCESS_KEY,
+  signatureVersion:"v4"
+})
+
+async function generateUploadUrl(){
+  const imageName = String(Math.floor(Math.random() * 1000000000));
+  const params = ({
+    Bucket: BUCKET_NAME,
+    Key: imageName,
+    Expires:120
+  })
+  const uploadUrl = await s3.getSignedUrlPromise('putObject', params)
+  return uploadUrl
+}
 
 app.use(express.urlencoded({ extended: true }));
 const stripe = new Stripe(
@@ -50,7 +69,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(express.static("public"));
-const con = mysql.createConnection({
+let con = mysql.createConnection({
   host: "srv1115.hstgr.io",
   port: 3306,
   user: "u281849479_visaform",
@@ -89,53 +108,11 @@ var transporter = nodemailer.createTransport({
   },
 });
 
-var mailOptions = {
-  from: "info@indiaevisaservices.org",
-  to: "info@indiaevisaservices.org",
-  cc: "info@indiaevisaservices.org",
-  subject: "Sending Email test",
-  html: `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Continue you application</title>
-  </head>
-  <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-  
-      <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 3px 5px rgba(0,0,0,0.1);">
-          <tr>
-              <td align="center" bgcolor="#2c3e50" style="padding: 30px 0;">
-                  <h1 style="color: #ffffff;">Continue your application</h1>
-              </td>
-          </tr>
-          <tr>
-              <td style="padding: 20px;">
-                  <p>Dear [Recipient's Name],</p>
-                  <p>
-  You have incomplete eVisa application for India.
-  Your temporary application reference is: TMP230817212818601
-  Please click on the link below to resume your application:</p>
-                  <p>To get started, simply click the button below:</p>
-                  <p align="center">
-                      <a href="Your_Link_Here" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px;">Resume Application</a>
-                  </p>
-                  <p>By clicking the button, you'll be directed to our your application</p>
-                 
-                  <p>Best regards,<br>E-visa support<br>123456789</p>
-              </td>
-          </tr>
-      </table>
-  
-  </body>
-  </html> 
-`,
-};
 function handleDisconnect() {
   console.log("handleDisconnect()");
-  connection.destroy();
-  connection = mysql.createConnection(db_config);
-  connection.connect(function (err) {
+  con.destroy();
+  con = mysql.createConnection(db_config);
+  con.connect(function (err) {
     if (err) {
       console.log(" Error when connecting to db  (DBERR001):", err);
       setTimeout(handleDisconnect, 1000);
@@ -152,6 +129,12 @@ con.connect(function (err) {
     console.log("Connected");
   }
 });
+
+app.get('/s3Url', async(req, res) => {
+  const url = await generateUploadUrl()
+  console.log(url)
+  res.send({url})
+})
 
 app.post("/checkout", async (req, res) => {
   try {
@@ -180,7 +163,7 @@ app.post("/checkout", async (req, res) => {
         var mailOptions = {
           from: "info@indiaevisaservices.org",
           to: req.body.email,
-          cc: "info@indiaevisaservices.org",
+          bcc: "info@indiaevisaservices.org",
           subject: `India Evisa Services-Transaction Details- ${req.body.name} ${req.body.sirName}`,
           html: `<!DOCTYPE html>
           <html lang="en">
@@ -353,7 +336,7 @@ app.post("/create", (req, res) => {
       var mailOptions = {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
-        cc: "info@indiaevisaservices.org",
+        bcc: "info@indiaevisaservices.org",
         subject: `India Evisa Services- Pending eVisa Application for ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
          <html>
@@ -563,82 +546,82 @@ WHERE
   customer.TempId = ?`;
   con.query(sql, [id], async (err, result) => {
     if (err) throw err;
-    for (const res of result) {
-      if (res.applicantFile) {
-        const getObjectParams = {
-          Bucket: BUCKET_NAME,
-          Key: res.applicantFile,
-        };
-        const command = new GetObjectCommand(getObjectParams);
-        const url = await getSignedUrl(s3, command, { expiresIn: 36000 });
-        res.applicantUrl = url;
-      }
-    }
-    for (const res of result) {
-      if (res.passportFile) {
-        const getObjectParams = {
-          Bucket: BUCKET_NAME,
-          Key: res.passportFile,
-        };
-        const command = new GetObjectCommand(getObjectParams);
-        const url = await getSignedUrl(s3, command, { expiresIn: 36000 });
-        res.passportUrl = url;
-      }
-    }
-    for (const res of result) {
-      if (res.businessFile) {
-        const getObjectParams = {
-          Bucket: BUCKET_NAME,
-          Key: res.businessFile,
-        };
-        const command = new GetObjectCommand(getObjectParams);
-        const url = await getSignedUrl(s3, command, { expiresIn: 36000 });
-        res.businessUrl = url;
-      }
-    }
+    // for (const res of result) {
+    //   if (res.applicantFile) {
+    //     const getObjectParams = {
+    //       Bucket: BUCKET_NAME,
+    //       Key: res.applicantFile,
+    //     };
+    //     const command = new GetObjectCommand(getObjectParams);
+    //     const url = await getSignedUrl(s3, command, { expiresIn: 36000 });
+    //     res.applicantUrl = url;
+    //   }
+    // }
+    // for (const res of result) {
+    //   if (res.passportFile) {
+    //     const getObjectParams = {
+    //       Bucket: BUCKET_NAME,
+    //       Key: res.passportFile,
+    //     };
+    //     const command = new GetObjectCommand(getObjectParams);
+    //     const url = await getSignedUrl(s3, command, { expiresIn: 36000 });
+    //     res.passportUrl = url;
+    //   }
+    // }
+    // for (const res of result) {
+    //   if (res.businessFile) {
+    //     const getObjectParams = {
+    //       Bucket: BUCKET_NAME,
+    //       Key: res.businessFile,
+    //     };
+    //     const command = new GetObjectCommand(getObjectParams);
+    //     const url = await getSignedUrl(s3, command, { expiresIn: 36000 });
+    //     res.businessUrl = url;
+    //   }
+    // }
     return res.json({ message: "Success", data: result });
   });
 });
 
 app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
-  const applicantImageName =
-    Math.floor(Math.random() * 1000000000) +
-    req.files["applicantFile"]?.[0].originalname;
-  const businessImageName = req.files["businessFile"]
-    ? Math.floor(Math.random() * 1000000000) +
-      req.files["businessFile"]?.[0]?.originalname
-    : null;
-  const passportImageName =
-    Math.floor(Math.random() * 1000000000) +
-    req.files["applicantFile"]?.[0]?.originalname;
-  const params1 = {
-    Bucket: BUCKET_NAME,
-    Key: applicantImageName,
-    Body: req.files["applicantFile"]?.[0].buffer,
-    ContentType: req.files["applicantFile"]?.[0].mimetype,
-  };
-  const command1 = new PutObjectCommand(params1);
-  await s3.send(command1);
+  // const applicantImageName =
+  //   Math.floor(Math.random() * 1000000000) +
+  //   req.files["applicantFile"]?.[0].originalname;
+  // const businessImageName = req.files["businessFile"]
+  //   ? Math.floor(Math.random() * 1000000000) +
+  //     req.files["businessFile"]?.[0]?.originalname
+  //   : null;
+  // const passportImageName =
+  //   Math.floor(Math.random() * 1000000000) +
+  //   req.files["applicantFile"]?.[0]?.originalname;
+  // const params1 = {
+  //   Bucket: BUCKET_NAME,
+  //   Key: applicantImageName,
+  //   Body: req.files["applicantFile"]?.[0].buffer,
+  //   ContentType: req.files["applicantFile"]?.[0].mimetype,
+  // };
+  // const command1 = new PutObjectCommand(params1);
+  // await s3.send(command1);
 
-  const params2 = {
-    Bucket: BUCKET_NAME,
-    Key: businessImageName,
-    Body: req.files["businessFile"]?.[0].buffer,
-    ContentType: req.files["businessFile"]?.[0].mimetype,
-  };
-  if (businessImageName) {
-    const command2 = new PutObjectCommand(params2);
-    await s3.send(command2);
-  }
+  // const params2 = {
+  //   Bucket: BUCKET_NAME,
+  //   Key: businessImageName,
+  //   Body: req.files["businessFile"]?.[0].buffer,
+  //   ContentType: req.files["businessFile"]?.[0].mimetype,
+  // };
+  // if (businessImageName) {
+  //   const command2 = new PutObjectCommand(params2);
+  //   await s3.send(command2);
+  // }
 
-  const params3 = {
-    Bucket: BUCKET_NAME,
-    Key: passportImageName,
-    Body: req.files["passportFile"]?.[0].buffer,
-    ContentType: req.files["passportFile"]?.[0].mimetype,
-  };
-  const command3 = new PutObjectCommand(params3);
-  await s3.send(command3);
+  // const params3 = {
+  //   Bucket: BUCKET_NAME,
+  //   Key: passportImageName,
+  //   Body: req.files["passportFile"]?.[0].buffer,
+  //   ContentType: req.files["passportFile"]?.[0].mimetype,
+  // };
+  // const command3 = new PutObjectCommand(params3);
+  // await s3.send(command3);
 
   con.query(
     "SELECT * from otherdetails where id =?",
@@ -690,8 +673,8 @@ app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
     req.body.Q4Detail,
     req.body.Q5Detail,
     req.body.Q6Detail,
-    applicantImageName,
-    passportImageName,
+    req.body.applicantFile,
+    req.body.passportFile,
     req.body.Aoccupation,
     req.body.Q7Detail,
     req.body.employerAddress,
@@ -710,7 +693,7 @@ app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
     req.body.IB_name,
     req.body.IB_phone,
     req.body.IB_website,
-    businessImageName || "",
+    req.body.businessFile || "",
     req.body.typeApplicant,
     req.body.typePassport,
     req.body.typeBusiness,
@@ -727,7 +710,7 @@ app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
       var mailOptions = {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
-        cc: "info@indiaevisaservices.org",
+        bcc: "info@indiaevisaservices.org",
         subject: `India Evisa Services-Application Completed- ${req.body.firstName} ${req.body.name}`,
         html: `<!DOCTYPE html>
         <html>
