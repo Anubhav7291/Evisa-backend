@@ -763,9 +763,11 @@ app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
         if (error) {
           console.log(error);
           return res.json({ message: "Error sending mail" });
+        }else{
+          console.log(info);
+          return res.json({ message: "Success" });
         }
       });
-      return res.json({ message: "Success" });
     }
   });
 });
