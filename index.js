@@ -707,6 +707,7 @@ app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
       handleDisconnect();
     }
     if (result) {
+      console.log(req.body)
       var mailOptions = {
         from: "info@indiaevisaservices.org",
         to: req.body.email,
