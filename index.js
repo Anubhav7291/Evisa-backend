@@ -207,7 +207,7 @@ app.post("/checkout", async (req, res) => {
                       width: 100%;
                       text-align: center;
                       background-color: lightgreen;
-                      color: white;
+                      color: white !important;
                       padding: 10px;
                       text-decoration: none;
                       border-radius: 5px;
