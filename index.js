@@ -138,16 +138,12 @@ app.get('/s3Url', async(req, res) => {
 
 app.post("/checkout", async (req, res) => {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await stripe.checkout.sessions.create({
       amount: req.body.amount,
       currency: "USD",
       description: "E-visa payment",
       confirm: true,
       payment_method: req.body.id,
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: "never",
-      },
     });
     console.log(paymentIntent);
     const sql =
