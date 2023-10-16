@@ -49,7 +49,7 @@ async function generateUploadUrl(){
 
 app.use(express.urlencoded({ extended: true }));
 const stripe = new Stripe(
-  "sk_test_51Nk4rQSAsYGUvUslOKUDQbNjp0Rn43FxkxDkSVIqz5NQmLzw30v9ykrXb2GUcx4DjuLRBRJ9WDwcFbTFHpaEpLAD00Ll4S8wJ4"
+  "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"
 );
 const storage = multer.memoryStorage(); // Store files in memory
 const upload = multer({
