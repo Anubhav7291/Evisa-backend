@@ -49,7 +49,7 @@ async function generateUploadUrl(){
 
 app.use(express.urlencoded({ extended: true }));
 const stripe = new Stripe(
-  "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"
+  "sk_test_51Nk4rQSAsYGUvUslOKUDQbNjp0Rn43FxkxDkSVIqz5NQmLzw30v9ykrXb2GUcx4DjuLRBRJ9WDwcFbTFHpaEpLAD00Ll4S8wJ4"
 );
 const storage = multer.memoryStorage(); // Store files in memory
 const upload = multer({
@@ -136,140 +136,158 @@ app.get('/s3Url', async(req, res) => {
   res.send({url})
 })
 
+app.post(("/payment"), (req, res) => {
+  const sql =
+  "UPDATE paymentdetails SET paymentStatus = ?, transactionId = ?, paymentType = ?  WHERE id = ?";
+const values = ["Completed", req.body.transactionId, "card", req.body.tempId];
+con.query(sql, values, (err, result) => {
+  console.log(sql, values);
+  if (err) {
+    setTimeout(handleDisconnect, 1000);
+    handleDisconnect();
+  }
+  if (result) {
+    var mailOptions = {
+      from: "info@indiaevisaservices.org",
+      to: req.body.email,
+      bcc: "info@indiaevisaservices.org",
+      subject: `India Evisa Services-Transaction Details- ${req.body.name} ${req.body.sirName}`,
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Receipt</title>
+          <style>
+              /* Style for the container */
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 20px;
+                  border: 1px solid #ccc;
+                  border-radius: 10px;
+                  background-color: #f9f9f9;
+              }
+      
+              /* Style for the header */
+              .header {
+                  text-align: center;
+                  font-size: 16px;
+                  margin-bottom: 20px;
+              }
+      
+              /* Style for the message */
+              .message {
+                  margin-bottom: 20px;
+              }
+      
+              /* Style for the transaction details */
+              .transaction-details {
+                  border: 1px solid #ccc;
+                  padding: 10px;
+                  background-color: #fff;
+              }
+      
+              /* Style for the action button */
+              .action-button {
+                  display: block;
+                  width: 100%;
+                  text-align: center;
+                  background-color: green;
+                  color: white !important;
+                  padding: 10px;
+                  text-decoration: none;
+                  border-radius: 5px;
+                  margin-top: 20px;
+              }
+      
+              /* Style for the footer */
+              .footer {
+                  text-align: center;
+                  font-size: 12px;
+                  margin-top: 20px;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="message">
+                  <p>Dear ${req.body.name} ${req.body.sirName},</p>
+                  <p>Thank you for submitting your application for the India eVisa. We are pleased to inform you that your application has been successfully processed and submitted for assessment. Our team aims to approve all applications within 24-48 hours. Once your application has been approved, you will receive an email from the Indian Immigration Authorities confirming your India eVisa approval.</p>
+              </div>
+              <div class="transaction-details">
+                  <p><strong>Transaction ID:</strong> ${
+                    req.body.transactionId
+                  }</p>
+                  <p><strong>Transaction Date:</strong> ${new Date()}</p>
+                  <p><strong>Temporary Application Number (not for eVisa status tracking):</strong> ${
+                    req.body.tempId
+                  }</p>
+                  <p><strong>Item 1:</strong> X EVISA INDIA</p>
+                  <p><strong>Cost:</strong> $${
+                    req.body.amount / 100
+                  } USD</p>
+                  <p><strong>Charges on your card will appear as:</strong> India Evisa Services</p>
+              </div>
+              <a href="https://master--iridescent-fox-f31d24.netlify.app/details/${
+                req.body.tempId
+              }" class="action-button">Complete Application</a>
+              <div class="footer">
+                  <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
+                  <p>If you have not completed your application yet, please click on the "Complete Application" button as soon as possible to ensure a prompt processing time.</p>
+                  <p>IP Address: ${req.body.ip}</p>
+                  <p>If you have not received a response from us within 24 hours, please do not hesitate to contact us via email and reference your temporary application number.</p>
+              </div>
+              <div class="add">
+        <p>Best regards,</p>
+        <p>Customer Service Dept.</p>
+        <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
+    </div>
+          </div>
+      </body>
+      </html>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        return res.json({ message: "Error sending mail" });
+      } else {
+        return res.json({ message: "Payment Successful", success: true });
+      }
+    });
+  }
+});
+})
+
 app.post("/checkout", async (req, res) => {
   try {
-    const paymentIntent = await stripe.checkout.sessions.create({
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount,
+      shipping: {
+        name: 'Jenny Rosen',
+        address: {
+          line1: '510 Townsend St',
+          postal_code: '98140',
+          city: 'San Francisco',
+          state: 'CA',
+          country: 'US',
+        },
+      },
       currency: "USD",
       description: "E-visa payment",
       confirm: true,
       payment_method: req.body.id,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: "always",
+      },
+      return_url:"http://localhost:3000"
     });
-    console.log(paymentIntent);
-    const sql =
-      "UPDATE paymentdetails SET paymentStatus = ?, transactionId = ?, paymentType = ?  WHERE id = ?";
-    const values = ["Completed", paymentIntent.id, "card", req.body.tempId];
-    con.query(sql, values, (err, result) => {
-      console.log(sql, values);
-      if (err) {
-        setTimeout(handleDisconnect, 1000);
-        handleDisconnect();
-      }
-      if (result) {
-        var mailOptions = {
-          from: "info@indiaevisaservices.org",
-          to: req.body.email,
-          bcc: "info@indiaevisaservices.org",
-          subject: `India Evisa Services-Transaction Details- ${req.body.name} ${req.body.sirName}`,
-          html: `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Payment Receipt</title>
-              <style>
-                  /* Style for the container */
-                  .container {
-                      max-width: 600px;
-                      margin: 0 auto;
-                      padding: 20px;
-                      border: 1px solid #ccc;
-                      border-radius: 10px;
-                      background-color: #f9f9f9;
-                  }
-          
-                  /* Style for the header */
-                  .header {
-                      text-align: center;
-                      font-size: 16px;
-                      margin-bottom: 20px;
-                  }
-          
-                  /* Style for the message */
-                  .message {
-                      margin-bottom: 20px;
-                  }
-          
-                  /* Style for the transaction details */
-                  .transaction-details {
-                      border: 1px solid #ccc;
-                      padding: 10px;
-                      background-color: #fff;
-                  }
-          
-                  /* Style for the action button */
-                  .action-button {
-                      display: block;
-                      width: 100%;
-                      text-align: center;
-                      background-color: green;
-                      color: white !important;
-                      padding: 10px;
-                      text-decoration: none;
-                      border-radius: 5px;
-                      margin-top: 20px;
-                  }
-          
-                  /* Style for the footer */
-                  .footer {
-                      text-align: center;
-                      font-size: 12px;
-                      margin-top: 20px;
-                  }
-              </style>
-          </head>
-          <body>
-              <div class="container">
-                  <div class="message">
-                      <p>Dear ${req.body.name} ${req.body.sirName},</p>
-                      <p>Thank you for submitting your application for the India eVisa. We are pleased to inform you that your application has been successfully processed and submitted for assessment. Our team aims to approve all applications within 24-48 hours. Once your application has been approved, you will receive an email from the Indian Immigration Authorities confirming your India eVisa approval.</p>
-                  </div>
-                  <div class="transaction-details">
-                      <p><strong>Transaction ID:</strong> ${
-                        paymentIntent.id
-                      }</p>
-                      <p><strong>Transaction Date:</strong> ${new Date()}</p>
-                      <p><strong>Temporary Application Number (not for eVisa status tracking):</strong> ${
-                        req.body.tempId
-                      }</p>
-                      <p><strong>Item 1:</strong> X EVISA INDIA</p>
-                      <p><strong>Cost:</strong> $${
-                        req.body.amount / 100
-                      } USD</p>
-                      <p><strong>Charges on your card will appear as:</strong> India Evisa Services</p>
-                  </div>
-                  <a href="https://master--iridescent-fox-f31d24.netlify.app/details/${
-                    req.body.tempId
-                  }" class="action-button">Complete Application</a>
-                  <div class="footer">
-                      <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
-                      <p>If you have not completed your application yet, please click on the "Complete Application" button as soon as possible to ensure a prompt processing time.</p>
-                      <p>IP Address: ${req.body.ip}</p>
-                      <p>If you have not received a response from us within 24 hours, please do not hesitate to contact us via email and reference your temporary application number.</p>
-                  </div>
-                  <div class="add">
-            <p>Best regards,</p>
-            <p>Customer Service Dept.</p>
-            <p>If you did not authorize this transaction, please inform us by replying to this email.</p>
-        </div>
-              </div>
-          </body>
-          </html>
-          `,
-        };
-
-        transporter.sendMail(mailOptions, function (error, info) {
-          if (error) {
-            console.log(error);
-            return res.json({ message: "Error sending mail" });
-          } else {
-            return res.json({ message: "Payment Successful", success: true });
-          }
-        });
-      }
-    });
+    return res.json({ message: "Payment Successful", success: true, paymentIntent:paymentIntent })
   } catch (err) {
-    console.log(err);
+    return res.json({ Error:'error' })
   }
 });
 
