@@ -266,17 +266,17 @@ app.post("/checkout", async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount,
       shipping: {
-        name: 'Jenny Rosen',
+        name: req.body.name,
         address: {
-          line1: '510 Townsend St',
-          postal_code: '98140',
-          city: 'San Francisco',
-          state: 'CA',
-          country: 'US',
+          line1: req.body.street,
+          postal_code: req.body.postal,
+          city: req.body.city,
+          state: req.body.state,
+          country: req.body.country,
         },
       },
       currency: "USD",
-      description: "E-visa payment",
+      description: req.body.visaOptions === "eTOURIST VISA" ? req.body.visaService : req.body.visaOptions,
       confirm: true,
       payment_method: req.body.id,
       automatic_payment_methods: {
