@@ -49,7 +49,7 @@ async function generateUploadUrl(){
 
 app.use(express.urlencoded({ extended: true }));
 const stripe = new Stripe(
-  "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"
+  "sk_test_51Nk4rQSAsYGUvUslOKUDQbNjp0Rn43FxkxDkSVIqz5NQmLzw30v9ykrXb2GUcx4DjuLRBRJ9WDwcFbTFHpaEpLAD00Ll4S8wJ4"
 );
 const storage = multer.memoryStorage(); // Store files in memory
 const upload = multer({
@@ -262,6 +262,7 @@ con.query(sql, values, (err, result) => {
 })
 
 app.post("/checkout", async (req, res) => {
+  console.log(req.body.visaService === "eTOURIST VISA" ? req.body.visaOptions : req.body.visaService)
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount,
@@ -285,9 +286,10 @@ app.post("/checkout", async (req, res) => {
       },
       return_url:"http://localhost:3000"
     });
+    console.log(paymentIntent)
     return res.json({ message: "Payment Successful", success: true, paymentIntent:paymentIntent })
   } catch (err) {
-    return res.json({ Error:'error' })
+    return res.json({ Error:err})
   }
 });
 
