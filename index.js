@@ -276,7 +276,8 @@ app.post("/checkout", async (req, res) => {
           country: req.body.country,
         },
       },
-      currency: "USD",
+      
+      currency: "INR",
       description: req.body.visaOptions === "eTOURIST VISA" ? req.body.visaService : req.body.visaOptions,
       confirm: true,
       payment_method: req.body.id,
