@@ -225,7 +225,7 @@ con.query(sql, values, (err, result) => {
                   }</p>
                   <p><strong>Item 1:</strong> X EVISA INDIA</p>
                   <p><strong>Cost:</strong> $${
-                    req.body.amount / 100
+                    req.body.amount
                   } USD</p>
                   <p><strong>Charges on your card will appear as:</strong> India Evisa Services</p>
               </div>
