@@ -229,7 +229,7 @@ con.query(sql, values, (err, result) => {
                   } USD</p>
                   <p><strong>Charges on your card will appear as:</strong> India Evisa Services</p>
               </div>
-              <a href="https://master--iridescent-fox-f31d24.netlify.app/details/${
+              <a href="https://indiaevisaservices.org/evisa-form/details/${
                 req.body.tempId
               }" class="action-button">Complete Application</a>
               <div class="footer">
@@ -380,7 +380,7 @@ app.post("/create", (req, res) => {
              </p>
          <br>
              <p style="text-align: center;">
-                 <a href="https://master--iridescent-fox-f31d24.netlify.app/register/${tempId}" style="display: inline-block; padding: 15px 60px; background-color:#990000; color: white; text-decoration: none; border-radius: 5px;">Resume Application</a>
+                 <a href="https://indiaevisaservices.org/evisa-form/register/${tempId}" style="display: inline-block; padding: 15px 60px; background-color:#990000; color: white; text-decoration: none; border-radius: 5px;">Resume Application</a>
              </p>
          <br>
              <p style="text-align: left;font-size: 90%;">
@@ -760,7 +760,7 @@ app.put("/otherDetails", upload.fields(uploadFields), async (req, res) => {
                                         Application reference number: ${req.body.id}<br><br>
                                         A review of your file is underway. You will receive an email which will contain your Indian eVisa approval confirmation by the Indian Immigration Authorities.<br><br>
                                         Please note that most eVisas are issued in 4 days; however, some may take longer to process, up to 7 days.<br><br>
-                                        <a href="https://master--iridescent-fox-f31d24.netlify.app" style="color: green;">Apply for another E-visa</a><br><br>
+                                        <a href="https://indiaevisaservices.org/evisa-form" style="color: green;">Apply for another E-visa</a><br><br>
                                         Regards,<br>
                                         Customer Service Dept.<br>
                                         <a href="https://indiaevisaservices.org/" style="color: black;">https://indiaevisaservices.org</a>
